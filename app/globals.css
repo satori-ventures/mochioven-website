@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 21%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 21%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 21%;
+    --primary: 14 85% 56%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 18 100% 96%;
+    --secondary-foreground: 0 0% 21%;
+    --muted: 20 60% 97%;
+    --muted-foreground: 0 0% 42%;
+    --accent: 15 100% 94%;
+    --accent-foreground: 0 0% 21%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 20 30% 91%;
+    --input: 20 30% 91%;
+    --ring: 14 85% 56%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.75rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-ink font-sans antialiased;
+    color: #343434;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .text-pretty {
+    text-wrap: pretty;
+  }
+}
+
+/* Keyboard-only focus ring in brand orange */
+header a:focus-visible,
+header button:focus-visible {
+  outline: 2px solid hsl(14 85% 56%);
+  outline-offset: 2px;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
