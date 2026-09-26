@@ -1,11 +1,14 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCart, type CartLine } from "@/lib/cart-context";
+import { formatMinimum } from "@/lib/menu-data";
 import { siteConfig } from "@/lib/site-config";
 import { getDeliveryFee, parsePrice, formatFee, isValidZip, isSummerlinZip } from "@/lib/delivery-fee";
-import { X, Minus, Plus, Trash2, ShoppingBag, Lock } from "lucide-react";
+import { businessDateString, isWithinLeadTime } from "@/lib/order-dates";
+import { X, Minus, Plus, Trash2, ShoppingBag, Lock, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type TimingChoice = "asap" | "scheduled" | "";
@@ -40,18 +43,6 @@ const initialCheckout: CheckoutInfo = {
   notes: "",
 };
 
-function todayStr(): string {
-  return new Date().toISOString().split("T")[0];
-}
-
-function isWithinLeadTime(dateStr: string): boolean {
-  if (!dateStr) return false;
-  const chosen = new Date(dateStr + "T00:00:00");
-  const leadDate = new Date();
-  leadDate.setHours(leadDate.getHours() + siteConfig.order.leadTimeHours);
-  return chosen < leadDate;
-}
-
 function cartSubtotal(lines: CartLine[]): number {
   return lines.reduce((sum, l) => sum + parsePrice(l.price) * l.quantity, 0);
 }
@@ -59,6 +50,13 @@ function cartSubtotal(lines: CartLine[]): number {
 function hasValidPrice(price: string | undefined): boolean {
   if (!price) return false;
   return /\$[\d.]+/.test(price);
+}
+
+function lineDetails(line: CartLine): string {
+  const details = [line.flavor, line.size].filter(Boolean).join(" · ");
+  return line.minQuantity > 1
+    ? `${details} (${formatMinimum(line.minQuantity, line.quantityLabel)} minimum)`
+    : details;
 }
 
 export function createSquareCheckout(
@@ -82,10 +80,9 @@ export function CartPanel() {
   const [checkout, setCheckout] = useState<CheckoutInfo>(initialCheckout);
   const [showSummary, setShowSummary] = useState(false);
   const [triedSubmit, setTriedSubmit] = useState(false);
-  const today = useMemo(() => todayStr(), []);
-
   if (!isOpen) return null;
 
+  const today = businessDateString();
   const subtotal = cartSubtotal(lines);
   const zipValid = isValidZip(checkout.zip);
   const feeAmount =
@@ -94,6 +91,8 @@ export function CartPanel() {
       : checkout.fulfillment === "delivery"
         ? getDeliveryFee("delivery", checkout.zip)
         : null;
+  const outsideDeliveryArea =
+    checkout.fulfillment === "delivery" && zipValid && feeAmount === null;
   const pricesAvailable = subtotal > 0;
   const estimatedTotal =
     pricesAvailable && feeAmount !== null ? subtotal + feeAmount : null;
@@ -103,7 +102,9 @@ export function CartPanel() {
       ? "Free"
       : feeAmount !== null
         ? formatFee(feeAmount)
-        : "Enter ZIP code";
+        : outsideDeliveryArea
+          ? "Not available"
+          : "Enter ZIP code";
 
   function updateField(
     e: React.ChangeEvent<
@@ -119,7 +120,7 @@ export function CartPanel() {
       setTriedSubmit(true);
       return;
     }
-    if (checkout.fulfillment === "delivery" && !zipValid) {
+    if (checkout.fulfillment === "delivery" && (!zipValid || outsideDeliveryArea)) {
       setTriedSubmit(true);
       return;
     }
@@ -237,7 +238,7 @@ export function CartPanel() {
                   >
                     <p className="font-medium text-ink">{line.name}</p>
                     <p className="text-ink/60">
-                      {line.flavor} · {line.size} · Qty {line.quantity}
+                      {lineDetails(line)} · Qty {line.quantity}
                     </p>
                     {hasValidPrice(line.price) && (
                       <p className="text-ink/60">{line.price} each</p>
@@ -290,6 +291,14 @@ export function CartPanel() {
               >
                 Confirm order
               </button>
+              <button
+                type="button"
+                onClick={() => setShowSummary(false)}
+                className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-full border-2 border-coral-300 px-6 py-3 text-base font-semibold text-coral-700 transition-all duration-200 hover:border-coral-400 hover:bg-coral-100"
+              >
+                <Pencil className="h-4 w-4" />
+                Edit order
+              </button>
             </div>
           ) : lines.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center text-center">
@@ -310,9 +319,7 @@ export function CartPanel() {
                     <p className="text-sm font-semibold text-ink">
                       {line.name}
                     </p>
-                    <p className="text-xs text-ink/60">
-                      {line.flavor} · {line.size}
-                    </p>
+                    <p className="text-xs text-ink/60">{lineDetails(line)}</p>
                     {hasValidPrice(line.price) && (
                       <p className="mt-1 text-xs text-ink/60">{line.price}</p>
                     )}
@@ -330,9 +337,6 @@ export function CartPanel() {
                       </button>
                       <span className="min-w-[2rem] text-center text-sm font-medium text-ink">
                         {line.quantity}
-                        {line.quantity > 1 && line.minQuantity > 1
-                          ? " dz"
-                          : ""}
                       </span>
                       <button
                         type="button"
@@ -554,6 +558,21 @@ export function CartPanel() {
                       </p>
                     )}
 
+                    {outsideDeliveryArea && (
+                      <p className="text-xs text-red-600">
+                        Sorry, this address is outside our delivery area.
+                        Please choose curbside pickup, or{" "}
+                        <Link
+                          href="/catering#inquiry"
+                          onClick={closeCart}
+                          className="font-medium underline underline-offset-2"
+                        >
+                          contact us
+                        </Link>
+                        .
+                      </p>
+                    )}
+
                     {zipValid && feeAmount !== null && (
                       <p className="text-xs font-medium text-coral-700">
                         Delivery fee: {formatFee(feeAmount)}{" "}
@@ -634,7 +653,8 @@ export function CartPanel() {
                         onChange={updateField}
                         className="w-full rounded-lg border border-coral-200 bg-white px-3 py-2.5 text-sm text-ink outline-none transition-colors focus:border-coral-500 focus:ring-2 focus:ring-coral-200"
                       />
-                      {checkout.date && isWithinLeadTime(checkout.date) && (
+                      {checkout.date &&
+                        isWithinLeadTime(checkout.date, siteConfig.order.leadTimeHours) && (
                         <p className="text-xs text-ink/55">
                           Same-day and rush orders depend on availability. We
                           will reach out to confirm.
