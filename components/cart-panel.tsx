@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCart, type CartLine } from "@/lib/cart-context";
+import { formatMinimum } from "@/lib/menu-data";
 import { siteConfig } from "@/lib/site-config";
 import { getDeliveryFee, parsePrice, formatFee, isValidZip, isSummerlinZip } from "@/lib/delivery-fee";
 import { businessDateString, isWithinLeadTime } from "@/lib/order-dates";
@@ -52,7 +53,10 @@ function hasValidPrice(price: string | undefined): boolean {
 }
 
 function lineDetails(line: CartLine): string {
-  return [line.flavor, line.size].filter(Boolean).join(" · ");
+  const details = [line.flavor, line.size].filter(Boolean).join(" · ");
+  return line.minQuantity > 1
+    ? `${details} (${formatMinimum(line.minQuantity, line.quantityLabel)} minimum)`
+    : details;
 }
 
 export function createSquareCheckout(
@@ -333,9 +337,6 @@ export function CartPanel() {
                       </button>
                       <span className="min-w-[2rem] text-center text-sm font-medium text-ink">
                         {line.quantity}
-                        {line.quantity > 1 && line.minQuantity > 1
-                          ? " dz"
-                          : ""}
                       </span>
                       <button
                         type="button"

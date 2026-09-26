@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { menuItems, type MenuItem } from "@/lib/menu-data";
+import { menuItems, formatMinimum, type MenuItem } from "@/lib/menu-data";
 import { siteConfig } from "@/lib/site-config";
 import { useCart } from "@/lib/cart-context";
 import { cn } from "@/lib/utils";
@@ -25,7 +25,7 @@ function ProductCard({ item }: { item: MenuItem }) {
   const selectedSizeObj = item.sizes.find((s) => s.label === selectedSize);
   const minLabel =
     item.minQuantity > 1
-      ? `Minimum order: ${item.minQuantity} dozen`
+      ? `Minimum order: ${formatMinimum(item.minQuantity, item.quantityLabel)}`
       : "";
 
   function handleAdd() {
@@ -36,6 +36,7 @@ function ProductCard({ item }: { item: MenuItem }) {
       size: selectedSize,
       quantity,
       minQuantity: item.minQuantity,
+      quantityLabel: item.quantityLabel,
       price: selectedSizeObj?.price || undefined,
       image: item.image ?? "",
     });

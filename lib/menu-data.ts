@@ -14,6 +14,11 @@ export type MenuItem = {
   flavorChoice: "single" | "none";
 };
 
+/** e.g. "2 dozen" for a minimum of 2 with quantity label "dozen". */
+export function formatMinimum(minQuantity: number, quantityLabel: string): string {
+  return [minQuantity, quantityLabel].filter(Boolean).join(" ");
+}
+
 export const menuItems: MenuItem[] = [
   {
     id: "mochi-cake",
