@@ -4,7 +4,7 @@
 
 The Mochi Oven marketing and ordering website.
 
-- Stack: Next.js (currently 13.5.1), TypeScript, Tailwind CSS, hosted on Netlify
+- Stack: Next.js (currently 16.3.6), TypeScript, Tailwind CSS, hosted on Netlify
 - Netlify builds every branch and pull request. Each pull request gets its own preview link. Production publishing is locked, and the owner publishes manually.
 - Key files:
   - `lib/site-config.ts`: business settings (ORDER_MODE, pickup windows, delivery fees, Summerlin ZIP codes, contact details, Formspree endpoint)
@@ -32,3 +32,13 @@ The Mochi Oven marketing and ordering website.
 - Never write "baked to order," "made to order," "fresh-baked," or "baked fresh." Use "handmade in small batches" instead.
 - Never include the owner's personal name.
 - Never invent prices, claims, or facts.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->
