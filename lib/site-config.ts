@@ -8,7 +8,7 @@ export const siteConfig = {
     url: "https://www.instagram.com/themochiovenbakery/",
   },
   contact: {
-    email: "themochioven@gmail.com",
+    email: "hello@mochioven.com",
     phoneDisplay: "(702) 706-6255",
     phoneHref: "tel:+17027066255",
     smsHref: "sms:+17027066255",
@@ -24,6 +24,10 @@ export const siteConfig = {
     summerlinDeliveryFee: 5,
     outsideSummerlinDeliveryFee: 10,
     summerlinZips: ["89134", "89135", "89138", "89144"],
+    deliveryZipsOutsideSummerlin: [
+      "89117", "89128", "89129", "89130", "89131", "89143", "89145",
+      "89147", "89148", "89149", "89109", "89119", "89169",
+    ],
     confirmationTime: "1 to 4 hours",
   },
   nav: [

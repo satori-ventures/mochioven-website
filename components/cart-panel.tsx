@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCart, type CartLine } from "@/lib/cart-context";
 import { siteConfig } from "@/lib/site-config";
 import { getDeliveryFee, parsePrice, formatFee, isValidZip, isSummerlinZip } from "@/lib/delivery-fee";
-import { X, Minus, Plus, Trash2, ShoppingBag, Lock } from "lucide-react";
+import { X, Minus, Plus, Trash2, ShoppingBag, Lock, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type TimingChoice = "asap" | "scheduled" | "";
@@ -61,6 +62,10 @@ function hasValidPrice(price: string | undefined): boolean {
   return /\$[\d.]+/.test(price);
 }
 
+function lineDetails(line: CartLine): string {
+  return [line.flavor, line.size].filter(Boolean).join(" · ");
+}
+
 export function createSquareCheckout(
   _lines: CartLine[],
   _checkout: CheckoutInfo
@@ -94,6 +99,8 @@ export function CartPanel() {
       : checkout.fulfillment === "delivery"
         ? getDeliveryFee("delivery", checkout.zip)
         : null;
+  const outsideDeliveryArea =
+    checkout.fulfillment === "delivery" && zipValid && feeAmount === null;
   const pricesAvailable = subtotal > 0;
   const estimatedTotal =
     pricesAvailable && feeAmount !== null ? subtotal + feeAmount : null;
@@ -103,7 +110,9 @@ export function CartPanel() {
       ? "Free"
       : feeAmount !== null
         ? formatFee(feeAmount)
-        : "Enter ZIP code";
+        : outsideDeliveryArea
+          ? "Not available"
+          : "Enter ZIP code";
 
   function updateField(
     e: React.ChangeEvent<
@@ -119,7 +128,7 @@ export function CartPanel() {
       setTriedSubmit(true);
       return;
     }
-    if (checkout.fulfillment === "delivery" && !zipValid) {
+    if (checkout.fulfillment === "delivery" && (!zipValid || outsideDeliveryArea)) {
       setTriedSubmit(true);
       return;
     }
@@ -237,7 +246,7 @@ export function CartPanel() {
                   >
                     <p className="font-medium text-ink">{line.name}</p>
                     <p className="text-ink/60">
-                      {line.flavor} · {line.size} · Qty {line.quantity}
+                      {lineDetails(line)} · Qty {line.quantity}
                     </p>
                     {hasValidPrice(line.price) && (
                       <p className="text-ink/60">{line.price} each</p>
@@ -290,6 +299,14 @@ export function CartPanel() {
               >
                 Confirm order
               </button>
+              <button
+                type="button"
+                onClick={() => setShowSummary(false)}
+                className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-full border-2 border-coral-300 px-6 py-3 text-base font-semibold text-coral-700 transition-all duration-200 hover:border-coral-400 hover:bg-coral-100"
+              >
+                <Pencil className="h-4 w-4" />
+                Edit order
+              </button>
             </div>
           ) : lines.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center text-center">
@@ -310,9 +327,7 @@ export function CartPanel() {
                     <p className="text-sm font-semibold text-ink">
                       {line.name}
                     </p>
-                    <p className="text-xs text-ink/60">
-                      {line.flavor} · {line.size}
-                    </p>
+                    <p className="text-xs text-ink/60">{lineDetails(line)}</p>
                     {hasValidPrice(line.price) && (
                       <p className="mt-1 text-xs text-ink/60">{line.price}</p>
                     )}
@@ -551,6 +566,21 @@ export function CartPanel() {
                     {triedSubmit && !zipValid && (
                       <p className="text-xs text-red-600">
                         Please enter a 5-digit ZIP code.
+                      </p>
+                    )}
+
+                    {outsideDeliveryArea && (
+                      <p className="text-xs text-red-600">
+                        Sorry, this address is outside our delivery area.
+                        Please choose curbside pickup, or{" "}
+                        <Link
+                          href="/catering#inquiry"
+                          onClick={closeCart}
+                          className="font-medium underline underline-offset-2"
+                        >
+                          contact us
+                        </Link>
+                        .
                       </p>
                     )}
 

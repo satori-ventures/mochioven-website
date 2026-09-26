@@ -19,7 +19,7 @@ const orderSteps = [
   {
     icon: Truck,
     title: "Choose pickup or delivery",
-    text: "Curbside pickup at Crossbridge Dr. & Oatwood Mast Ave is free. Delivery is $5 within Summerlin and $10 outside Summerlin.",
+    text: "Curbside pickup is free. Delivery is $5 within Summerlin and $10 to select areas of Las Vegas, including the Strip.",
   },
   {
     icon: ShieldCheck,

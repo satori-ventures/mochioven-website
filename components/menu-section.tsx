@@ -32,33 +32,54 @@ function ProductCard({ item }: { item: MenuItem }) {
     addLine({
       itemId: item.id,
       name: item.name,
-      flavor: selectedFlavor || "N/A",
+      flavor: selectedFlavor,
       size: selectedSize,
       quantity,
       minQuantity: item.minQuantity,
       price: selectedSizeObj?.price || undefined,
-      image: item.image,
+      image: item.image ?? "",
     });
   }
 
+  // Each card spans 9 rows of the menu grid and shares them with the card next
+  // to it (subgrid), so flavor, size, quantity, and the button line up. The
+  // card background covers rows 1-8; row 9 is the space between cards.
   return (
-    <div className="group flex flex-col overflow-hidden rounded-3xl bg-coral-50/40 ring-1 ring-coral-100/80 transition-all duration-300 hover:shadow-xl hover:ring-coral-200">
-      <div className="relative aspect-[16/10] overflow-hidden">
-        <Image
-          src={item.image}
-          alt={item.alt}
-          fill
-          className="object-cover transition-transform duration-700 group-hover:scale-105"
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-        />
+    <div className="group relative isolate grid [grid-row:span_9] [grid-template-rows:subgrid]">
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 -z-10 rounded-3xl bg-coral-50/40 ring-1 ring-coral-100/80 transition-all duration-300 [grid-row:1/9] group-hover:shadow-xl group-hover:ring-coral-200"
+      />
+      <div className="relative aspect-[16/10] overflow-hidden rounded-t-3xl">
+        {item.image ? (
+          <Image
+            src={item.image}
+            alt={item.alt}
+            fill
+            className="object-cover transition-transform duration-700 group-hover:scale-105"
+            sizes="(max-width: 640px) 100vw, 50vw"
+          />
+        ) : (
+          <div
+            role="img"
+            aria-label={item.alt}
+            className="flex h-full w-full items-center justify-center bg-coral-100/60 text-sm font-semibold uppercase tracking-widest text-coral-700"
+          >
+            {item.imagePlaceholder}
+          </div>
+        )}
       </div>
 
-      <div className="flex flex-1 flex-col p-6">
+      <div className="px-6 pt-6">
         <h3 className="text-xl font-semibold text-ink">{item.name}</h3>
+      </div>
+      <div className="px-6">
         <p className="mt-2 text-[15px] leading-relaxed text-ink/70">
           {item.description}
         </p>
+      </div>
 
+      <div className="px-6">
         {/* Flavors */}
         {item.flavorChoice === "single" && item.flavors.length > 0 && (
           <div className="mt-4">
@@ -101,8 +122,10 @@ function ProductCard({ item }: { item: MenuItem }) {
             </p>
           </div>
         )}
+      </div>
 
-        {/* Sizes */}
+      {/* Sizes */}
+      <div className="px-6">
         <div className="mt-4">
           <p className="text-xs font-semibold uppercase tracking-wider text-coral-700">
             Size
@@ -130,9 +153,16 @@ function ProductCard({ item }: { item: MenuItem }) {
               ))}
             </div>
           )}
+          {selectedSizeObj?.contents && (
+            <p className="mt-1.5 text-xs text-ink/50">
+              {selectedSizeObj.contents}
+            </p>
+          )}
         </div>
+      </div>
 
-        {/* Quantity */}
+      {/* Quantity */}
+      <div className="px-6">
         <div className="mt-4">
           <p className="text-xs font-semibold uppercase tracking-wider text-coral-700">
             Quantity
@@ -166,15 +196,19 @@ function ProductCard({ item }: { item: MenuItem }) {
             <p className="mt-1.5 text-xs text-ink/50">{minLabel}</p>
           )}
         </div>
+      </div>
 
-        {/* Price */}
+      {/* Price */}
+      <div className="px-6">
         {selectedSizeObj?.price && hasValidPrice(selectedSizeObj.price) && (
           <p className="mt-4 text-sm font-semibold text-ink">
             {selectedSizeObj.price}
           </p>
         )}
+      </div>
 
-        {/* Add to order */}
+      {/* Add to order */}
+      <div className="flex flex-col px-6 pb-6">
         <button
           type="button"
           onClick={handleAdd}
@@ -184,6 +218,8 @@ function ProductCard({ item }: { item: MenuItem }) {
           Add to order
         </button>
       </div>
+
+      <div aria-hidden="true" className="h-6" />
     </div>
   );
 }
@@ -209,7 +245,7 @@ export function MenuSection() {
             </span>
             <span className="flex items-center gap-2">
               <Truck className="h-4 w-4 shrink-0 text-coral-600" />
-              Delivery: $5 within Summerlin, $10 outside Summerlin
+              Delivery is $5 within Summerlin and $10 to select areas of Las Vegas, including the Strip.
             </span>
           </div>
           <p className="mx-auto mt-3 max-w-xl text-[15px] text-ink/70">
@@ -217,14 +253,14 @@ export function MenuSection() {
           </p>
         </div>
 
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-x-6 sm:grid-cols-2">
           {menuItems.map((item) => (
             <ProductCard key={item.id} item={item} />
           ))}
         </div>
 
         {/* Custom Orders */}
-        <div className="mt-6 overflow-hidden rounded-3xl border border-coral-100/80 bg-coral-50/40 p-8 sm:p-10">
+        <div className="overflow-hidden rounded-3xl border border-coral-100/80 bg-coral-50/40 p-8 sm:p-10">
           <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="max-w-xl">
               <h3 className="text-xl font-semibold text-ink sm:text-2xl">

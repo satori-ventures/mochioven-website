@@ -3,10 +3,12 @@ export type MenuItem = {
   name: string;
   description: string;
   flavors: string[];
-  sizes: { label: string; price?: string }[];
+  sizes: { label: string; price?: string; contents?: string }[];
   minQuantity: number;
   quantityLabel: string;
-  image: string;
+  /** null shows imagePlaceholder until the photo is added. */
+  image: string | null;
+  imagePlaceholder?: string;
   alt: string;
   type: "standard" | "custom";
   flavorChoice: "single" | "none";
@@ -54,6 +56,32 @@ export const menuItems: MenuItem[] = [
     quantityLabel: "dozen",
     image: "/images/Mini_Mochis.jpeg",
     alt: "Assorted mini mochi cupcakes topped with buttercream",
+    type: "standard",
+    flavorChoice: "none",
+  },
+  {
+    id: "sampler",
+    name: "The Sampler",
+    description:
+      "Try every flavor in one box: mochi cakes in Classic Butter, Citrus Matcha, and Velvety Ube, plus our Mochi Maddies.",
+    flavors: [],
+    sizes: [
+      {
+        label: "Full box",
+        price: "[PRICE]",
+        contents: "4 of each mochi cake flavor, plus 6 Mochi Maddies",
+      },
+      {
+        label: "Half box",
+        price: "[PRICE]",
+        contents: "2 of each mochi cake flavor, plus 4 Mochi Maddies",
+      },
+    ],
+    minQuantity: 1,
+    quantityLabel: "",
+    image: null,
+    imagePlaceholder: "[SAMPLER PHOTO]",
+    alt: "The Sampler box",
     type: "standard",
     flavorChoice: "none",
   },
