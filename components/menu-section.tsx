@@ -10,6 +10,13 @@ import { formatCents, usePriceLookup } from "@/lib/prices-context";
 import { cn } from "@/lib/utils";
 import { Plus, Minus, ArrowRight, ShoppingBag, MapPin, Truck } from "lucide-react";
 
+/** A price difference such as "+$4" or "+$4.50". */
+function formatPriceDifference(cents: number): string {
+  const sign = cents < 0 ? "−" : "+";
+  const abs = Math.abs(cents);
+  return `${sign}$${abs % 100 === 0 ? abs / 100 : (abs / 100).toFixed(2)}`;
+}
+
 function ProductCard({ item }: { item: MenuItem }) {
   const { addLine } = useCart();
   const priceOf = usePriceLookup();
@@ -18,9 +25,24 @@ function ProductCard({ item }: { item: MenuItem }) {
   );
   const [selectedSize, setSelectedSize] = useState(item.sizes[0]?.label ?? "");
   const [quantity, setQuantity] = useState(item.minQuantity);
+  const [withOption, setWithOption] = useState(false);
+
+  // The extra (e.g. toasted almonds) is offered only for its flavor, and only
+  // when Square has a price for it in the selected size.
+  const option = item.flavorOption;
+  const optionPrice = option ? priceOf(item.id, option.flavor, selectedSize) : undefined;
+  const optionAvailable =
+    !!option && selectedFlavor === option.baseFlavor && optionPrice !== undefined;
+  const optionChosen = optionAvailable && withOption;
+  const cartFlavor = optionChosen ? option.flavor : selectedFlavor;
+  const plainPrice = option ? priceOf(item.id, option.baseFlavor, selectedSize) : undefined;
+  const optionDifference =
+    optionPrice !== undefined && plainPrice !== undefined && optionPrice !== plainPrice
+      ? formatPriceDifference(optionPrice - plainPrice)
+      : "";
 
   const selectedSizeObj = item.sizes.find((s) => s.label === selectedSize);
-  const selectedPrice = priceOf(item.id, selectedFlavor, selectedSize);
+  const selectedPrice = priceOf(item.id, cartFlavor, selectedSize);
   const minLabel =
     item.minQuantity > 1
       ? `Minimum order: ${formatMinimum(item.minQuantity, item.quantityLabel)}`
@@ -30,7 +52,7 @@ function ProductCard({ item }: { item: MenuItem }) {
     addLine({
       itemId: item.id,
       name: item.name,
-      flavor: selectedFlavor,
+      flavor: cartFlavor,
       size: selectedSize,
       quantity,
       minQuantity: item.minQuantity,
@@ -49,7 +71,16 @@ function ProductCard({ item }: { item: MenuItem }) {
         className="absolute inset-0 -z-10 rounded-3xl bg-coral-50/40 ring-1 ring-coral-100/80 transition-all duration-300 [grid-row:1/9] group-hover:shadow-xl group-hover:ring-coral-200"
       />
       <div className="relative aspect-[16/10] overflow-hidden rounded-t-3xl">
-        {item.image ? (
+        {item.image && item.imageWidth && item.imageHeight ? (
+          <Image
+            src={item.image}
+            alt={item.alt}
+            width={item.imageWidth}
+            height={item.imageHeight}
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+            sizes="(max-width: 640px) 100vw, 50vw"
+          />
+        ) : item.image ? (
           <Image
             src={item.image}
             alt={item.alt}
@@ -68,9 +99,18 @@ function ProductCard({ item }: { item: MenuItem }) {
         )}
       </div>
 
-      <div className="px-6 pt-6">
-        <h3 className="text-xl font-semibold text-ink">{item.name}</h3>
-      </div>
+      {item.imageCaption ? (
+        // The caption fits in the title row's 24px top padding (6px + 16px
+        // line + 2px), so the title and the rows of the next card stay aligned.
+        <div className="px-6 pt-1.5">
+          <p className="text-xs text-ink/50">{item.imageCaption}</p>
+          <h3 className="mt-0.5 text-xl font-semibold text-ink">{item.name}</h3>
+        </div>
+      ) : (
+        <div className="px-6 pt-6">
+          <h3 className="text-xl font-semibold text-ink">{item.name}</h3>
+        </div>
+      )}
       <div className="px-6">
         <p className="mt-2 text-[15px] leading-relaxed text-ink/70">
           {item.description}
@@ -94,7 +134,10 @@ function ProductCard({ item }: { item: MenuItem }) {
                   <button
                     key={flavor}
                     type="button"
-                    onClick={() => setSelectedFlavor(flavor)}
+                    onClick={() => {
+                      setSelectedFlavor(flavor);
+                      setWithOption(false);
+                    }}
                     className={cn(
                       "min-h-[44px] min-w-[44px] rounded-full border px-3 py-1.5 text-xs font-medium transition-all",
                       selectedFlavor === flavor
@@ -122,39 +165,70 @@ function ProductCard({ item }: { item: MenuItem }) {
         )}
       </div>
 
-      {/* Sizes */}
+      {/* Sizes, and "Add almonds" beside them (below when there is no room) */}
       <div className="px-6">
-        <div className="mt-4">
-          <p className="text-xs font-semibold uppercase tracking-wider text-coral-700">
-            Size
-          </p>
-          {item.sizes.length === 1 ? (
-            <p className="mt-2 text-[15px] leading-relaxed text-ink/70">
-              {item.sizes[0].label}
+        <div className="mt-4 flex flex-wrap items-start gap-x-8 gap-y-4">
+          <div className="min-w-0 max-w-full">
+            <p className="text-xs font-semibold uppercase tracking-wider text-coral-700">
+              Size
             </p>
-          ) : (
-            <div className="mt-2 flex flex-wrap gap-2">
-              {item.sizes.map((size) => (
-                <button
-                  key={size.label}
-                  type="button"
-                  onClick={() => setSelectedSize(size.label)}
-                  className={cn(
-                    "min-h-[44px] min-w-[44px] rounded-full border px-3 py-1.5 text-xs font-medium transition-all",
-                    selectedSize === size.label
-                      ? "border-coral-600 bg-coral-600 text-white"
-                      : "border-coral-200 text-coral-700 hover:bg-coral-100"
-                  )}
-                >
-                  {size.label}
-                </button>
-              ))}
+            {item.sizes.length === 1 ? (
+              <p className="mt-2 text-[15px] leading-relaxed text-ink/70">
+                {item.sizes[0].label}
+              </p>
+            ) : (
+              <div className="mt-2 flex flex-wrap gap-2">
+                {item.sizes.map((size) => (
+                  <button
+                    key={size.label}
+                    type="button"
+                    onClick={() => setSelectedSize(size.label)}
+                    className={cn(
+                      "min-h-[44px] min-w-[44px] rounded-full border px-3 py-1.5 text-xs font-medium transition-all",
+                      selectedSize === size.label
+                        ? "border-coral-600 bg-coral-600 text-white"
+                        : "border-coral-200 text-coral-700 hover:bg-coral-100"
+                    )}
+                  >
+                    {size.label}
+                  </button>
+                ))}
+              </div>
+            )}
+            {selectedSizeObj?.contents && (
+              <p className="mt-1.5 text-xs text-ink/50">
+                {selectedSizeObj.contents}
+              </p>
+            )}
+          </div>
+          {option && optionAvailable && (
+            <div role="group" aria-labelledby={`${item.id}-option-heading`}>
+              <p
+                id={`${item.id}-option-heading`}
+                className="text-xs font-semibold uppercase tracking-wider text-coral-700"
+              >
+                {option.heading}
+              </p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {[false, true].map((yes) => (
+                  <button
+                    key={String(yes)}
+                    type="button"
+                    aria-pressed={optionChosen === yes}
+                    onClick={() => setWithOption(yes)}
+                    className={cn(
+                      "min-h-[44px] min-w-[44px] rounded-full border px-3 py-1.5 text-xs font-medium transition-all",
+                      optionChosen === yes
+                        ? "border-coral-600 bg-coral-600 text-white"
+                        : "border-coral-200 text-coral-700 hover:bg-coral-100"
+                    )}
+                  >
+                    {yes ? option.yesLabel : option.noLabel}
+                    {yes && optionDifference && ` ${optionDifference}`}
+                  </button>
+                ))}
+              </div>
             </div>
-          )}
-          {selectedSizeObj?.contents && (
-            <p className="mt-1.5 text-xs text-ink/50">
-              {selectedSizeObj.contents}
-            </p>
           )}
         </div>
       </div>

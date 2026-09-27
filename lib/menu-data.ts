@@ -8,10 +8,26 @@ export type MenuItem = {
   quantityLabel: string;
   /** null shows imagePlaceholder until the photo is added. */
   image: string | null;
+  /** Pixel size of `image`, passed to next/image. */
+  imageWidth?: number;
+  imageHeight?: number;
   imagePlaceholder?: string;
+  /** Small caption shown under the photo. */
+  imageCaption?: string;
   alt: string;
   type: "standard" | "custom";
   flavorChoice: "single" | "none";
+  /**
+   * An optional extra for one flavor, e.g. toasted almonds on Classic Butter.
+   * `flavor` is the cart and catalog flavor name when the extra is chosen.
+   */
+  flavorOption?: {
+    baseFlavor: string;
+    heading: string;
+    noLabel: string;
+    yesLabel: string;
+    flavor: string;
+  };
 };
 
 /** e.g. "2 dozen" for a minimum of 2 with quantity label "dozen". */
@@ -31,10 +47,20 @@ export const menuItems: MenuItem[] = [
     ],
     minQuantity: 1,
     quantityLabel: "",
-    image: "/images/Mochi_Cakes.JPG",
-    alt: "Assorted mochi cakes with golden crispy edges",
+    image: "/images/mochi-cake.webp",
+    imageWidth: 1536,
+    imageHeight: 1024,
+    alt: "A golden mochi cake with a crisp edge, topped with sliced almonds and powdered sugar, held in one hand",
+    imageCaption: "Shown with optional toasted almonds.",
     type: "standard",
     flavorChoice: "single",
+    flavorOption: {
+      baseFlavor: "Classic Butter",
+      heading: "Add almonds",
+      noLabel: "No",
+      yesLabel: "Yes",
+      flavor: "Classic Butter with Toasted Almonds",
+    },
   },
   {
     id: "mochi-maddies",
@@ -46,7 +72,9 @@ export const menuItems: MenuItem[] = [
     minQuantity: 1,
     quantityLabel: "dozen",
     image: "/images/Maddies.JPG",
-    alt: "Mochi Maddies madeleines with crispy shell edges",
+    imageWidth: 1536,
+    imageHeight: 2048,
+    alt: "A row of Mochi Maddies madeleines dusted with powdered sugar on a white tray",
     type: "standard",
     flavorChoice: "single",
   },
@@ -60,6 +88,8 @@ export const menuItems: MenuItem[] = [
     minQuantity: 2,
     quantityLabel: "dozen",
     image: "/images/Mini_Mochis.jpeg",
+    imageWidth: 1536,
+    imageHeight: 2048,
     alt: "Assorted mini mochi cupcakes topped with buttercream",
     type: "standard",
     flavorChoice: "none",
@@ -83,6 +113,8 @@ export const menuItems: MenuItem[] = [
     minQuantity: 1,
     quantityLabel: "",
     image: "/images/the-sampler.jpg",
+    imageWidth: 1536,
+    imageHeight: 1399,
     alt: "An open box of assorted mochi cakes and Mochi Maddies",
     type: "standard",
     flavorChoice: "none",
@@ -105,7 +137,9 @@ export type MenuVariant = {
 export function menuVariants(): MenuVariant[] {
   return menuItems.flatMap((item) => {
     const flavors =
-      item.flavorChoice === "single" ? item.flavors : [item.flavors[0] ?? ""];
+      item.flavorChoice === "single"
+        ? [...item.flavors, ...(item.flavorOption ? [item.flavorOption.flavor] : [])]
+        : [item.flavors[0] ?? ""];
     return flavors.flatMap((flavor) =>
       item.sizes.map((size) => ({
         item,
