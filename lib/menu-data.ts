@@ -12,6 +12,17 @@ export type MenuItem = {
   alt: string;
   type: "standard" | "custom";
   flavorChoice: "single" | "none";
+  /**
+   * An optional extra for one flavor, e.g. toasted almonds on Classic Butter.
+   * `flavor` is the cart and catalog flavor name when the extra is chosen.
+   */
+  flavorOption?: {
+    baseFlavor: string;
+    plainLabel: string;
+    label: string;
+    flavor: string;
+    note: string;
+  };
 };
 
 /** e.g. "2 dozen" for a minimum of 2 with quantity label "dozen". */
@@ -35,6 +46,13 @@ export const menuItems: MenuItem[] = [
     alt: "Assorted mochi cakes with golden crispy edges",
     type: "standard",
     flavorChoice: "single",
+    flavorOption: {
+      baseFlavor: "Classic Butter",
+      plainLabel: "Plain",
+      label: "Toasted almonds",
+      flavor: "Classic Butter with Toasted Almonds",
+      note: "Contains almonds",
+    },
   },
   {
     id: "mochi-maddies",
@@ -105,7 +123,9 @@ export type MenuVariant = {
 export function menuVariants(): MenuVariant[] {
   return menuItems.flatMap((item) => {
     const flavors =
-      item.flavorChoice === "single" ? item.flavors : [item.flavors[0] ?? ""];
+      item.flavorChoice === "single"
+        ? [...item.flavors, ...(item.flavorOption ? [item.flavorOption.flavor] : [])]
+        : [item.flavors[0] ?? ""];
     return flavors.flatMap((flavor) =>
       item.sizes.map((size) => ({
         item,

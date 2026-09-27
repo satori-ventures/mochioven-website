@@ -10,6 +10,13 @@ import { formatCents, usePriceLookup } from "@/lib/prices-context";
 import { cn } from "@/lib/utils";
 import { Plus, Minus, ArrowRight, ShoppingBag, MapPin, Truck } from "lucide-react";
 
+/** A price difference such as "+$4" or "+$4.50". */
+function formatPriceDifference(cents: number): string {
+  const sign = cents < 0 ? "−" : "+";
+  const abs = Math.abs(cents);
+  return `${sign}$${abs % 100 === 0 ? abs / 100 : (abs / 100).toFixed(2)}`;
+}
+
 function ProductCard({ item }: { item: MenuItem }) {
   const { addLine } = useCart();
   const priceOf = usePriceLookup();
@@ -18,9 +25,24 @@ function ProductCard({ item }: { item: MenuItem }) {
   );
   const [selectedSize, setSelectedSize] = useState(item.sizes[0]?.label ?? "");
   const [quantity, setQuantity] = useState(item.minQuantity);
+  const [withOption, setWithOption] = useState(false);
+
+  // The extra (e.g. toasted almonds) is offered only for its flavor, and only
+  // when Square has a price for it in the selected size.
+  const option = item.flavorOption;
+  const optionPrice = option ? priceOf(item.id, option.flavor, selectedSize) : undefined;
+  const optionAvailable =
+    !!option && selectedFlavor === option.baseFlavor && optionPrice !== undefined;
+  const optionChosen = optionAvailable && withOption;
+  const cartFlavor = optionChosen ? option.flavor : selectedFlavor;
+  const plainPrice = option ? priceOf(item.id, option.baseFlavor, selectedSize) : undefined;
+  const optionDifference =
+    optionPrice !== undefined && plainPrice !== undefined && optionPrice !== plainPrice
+      ? formatPriceDifference(optionPrice - plainPrice)
+      : "";
 
   const selectedSizeObj = item.sizes.find((s) => s.label === selectedSize);
-  const selectedPrice = priceOf(item.id, selectedFlavor, selectedSize);
+  const selectedPrice = priceOf(item.id, cartFlavor, selectedSize);
   const minLabel =
     item.minQuantity > 1
       ? `Minimum order: ${formatMinimum(item.minQuantity, item.quantityLabel)}`
@@ -30,7 +52,7 @@ function ProductCard({ item }: { item: MenuItem }) {
     addLine({
       itemId: item.id,
       name: item.name,
-      flavor: selectedFlavor,
+      flavor: cartFlavor,
       size: selectedSize,
       quantity,
       minQuantity: item.minQuantity,
@@ -94,7 +116,10 @@ function ProductCard({ item }: { item: MenuItem }) {
                   <button
                     key={flavor}
                     type="button"
-                    onClick={() => setSelectedFlavor(flavor)}
+                    onClick={() => {
+                      setSelectedFlavor(flavor);
+                      setWithOption(false);
+                    }}
                     className={cn(
                       "min-h-[44px] min-w-[44px] rounded-full border px-3 py-1.5 text-xs font-medium transition-all",
                       selectedFlavor === flavor
@@ -105,6 +130,44 @@ function ProductCard({ item }: { item: MenuItem }) {
                     {flavor}
                   </button>
                 ))}
+              </div>
+            )}
+            {option && optionAvailable && (
+              <div
+                role="group"
+                aria-label={`${option.baseFlavor} options`}
+                className="mt-3 flex flex-wrap items-start gap-2"
+              >
+                <button
+                  type="button"
+                  aria-pressed={!optionChosen}
+                  onClick={() => setWithOption(false)}
+                  className={cn(
+                    "min-h-[44px] min-w-[44px] rounded-full border px-3 py-1.5 text-xs font-medium transition-all",
+                    !optionChosen
+                      ? "border-coral-600 bg-coral-600 text-white"
+                      : "border-coral-200 text-coral-700 hover:bg-coral-100"
+                  )}
+                >
+                  {option.plainLabel}
+                </button>
+                <div className="flex flex-col items-start">
+                  <button
+                    type="button"
+                    aria-pressed={optionChosen}
+                    onClick={() => setWithOption(true)}
+                    className={cn(
+                      "min-h-[44px] min-w-[44px] rounded-full border px-3 py-1.5 text-xs font-medium transition-all",
+                      optionChosen
+                        ? "border-coral-600 bg-coral-600 text-white"
+                        : "border-coral-200 text-coral-700 hover:bg-coral-100"
+                    )}
+                  >
+                    {option.label}
+                    {optionDifference && ` ${optionDifference}`}
+                  </button>
+                  <p className="mt-1 text-xs text-ink/50">{option.note}</p>
+                </div>
               </div>
             )}
           </div>
