@@ -1,7 +1,11 @@
 import "server-only";
 import { z } from "zod";
 import { findMenuVariant, type MenuVariant } from "@/lib/menu-data";
-import { getDeliveryFee } from "@/lib/delivery-fee";
+import {
+  ADDRESS_ZIP_MISMATCH_MESSAGE,
+  addressZipMismatch,
+  getDeliveryFee,
+} from "@/lib/delivery-fee";
 import { siteConfig } from "@/lib/site-config";
 import {
   addDays,
@@ -145,6 +149,10 @@ export function validateOrderRequest(body: unknown): ValidOrder {
         "delivery_zip_rejected",
         "Sorry, this address is outside our delivery area. Please choose curbside pickup."
       );
+    }
+    const { address, address2, zip } = req.fulfillment;
+    if (addressZipMismatch(address, address2, zip)) {
+      fail("address_zip_mismatch", ADDRESS_ZIP_MISMATCH_MESSAGE);
     }
     fulfillment = {
       ...req.fulfillment,

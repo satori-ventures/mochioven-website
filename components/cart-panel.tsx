@@ -5,7 +5,14 @@ import Link from "next/link";
 import { useCart, type CartLine } from "@/lib/cart-context";
 import { formatMinimum } from "@/lib/menu-data";
 import { siteConfig } from "@/lib/site-config";
-import { getDeliveryFee, formatFee, isValidZip, isSummerlinZip } from "@/lib/delivery-fee";
+import {
+  ADDRESS_ZIP_MISMATCH_MESSAGE,
+  addressZipMismatch,
+  getDeliveryFee,
+  formatFee,
+  isValidZip,
+  isSummerlinZip,
+} from "@/lib/delivery-fee";
 import { formatCents, usePriceLookup } from "@/lib/prices-context";
 import { businessDateString, isWithinLeadTime } from "@/lib/order-dates";
 import { X, Minus, Plus, Trash2, ShoppingBag, Lock, Pencil } from "lucide-react";
@@ -124,6 +131,9 @@ export function CartPanel() {
         : null;
   const outsideDeliveryArea =
     checkout.fulfillment === "delivery" && zipValid && feeAmount === null;
+  const zipMismatch =
+    checkout.fulfillment === "delivery" &&
+    addressZipMismatch(checkout.address, checkout.address2, checkout.zip);
   const estimatedTotalCents =
     subtotalCents !== null && feeAmount !== null
       ? subtotalCents + feeAmount * 100
@@ -152,7 +162,10 @@ export function CartPanel() {
       setTriedSubmit(true);
       return;
     }
-    if (checkout.fulfillment === "delivery" && (!zipValid || outsideDeliveryArea)) {
+    if (
+      checkout.fulfillment === "delivery" &&
+      (!zipValid || outsideDeliveryArea || zipMismatch)
+    ) {
       setTriedSubmit(true);
       return;
     }
@@ -567,6 +580,7 @@ export function CartPanel() {
                         name="address"
                         type="text"
                         autoComplete="address-line1"
+                        placeholder="Street address only (e.g., 123 Main St)"
                         required={checkout.fulfillment === "delivery"}
                         value={checkout.address}
                         onChange={updateField}
@@ -639,6 +653,12 @@ export function CartPanel() {
                     {triedSubmit && !zipValid && (
                       <p className="text-xs text-red-600">
                         Please enter a 5-digit ZIP code.
+                      </p>
+                    )}
+
+                    {zipMismatch && (
+                      <p className="text-xs text-red-600">
+                        {ADDRESS_ZIP_MISMATCH_MESSAGE}
                       </p>
                     )}
 
