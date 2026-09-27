@@ -6,16 +6,13 @@ import Link from "next/link";
 import { menuItems, formatMinimum, type MenuItem } from "@/lib/menu-data";
 import { siteConfig } from "@/lib/site-config";
 import { useCart } from "@/lib/cart-context";
+import { formatCents, usePriceLookup } from "@/lib/prices-context";
 import { cn } from "@/lib/utils";
 import { Plus, Minus, ArrowRight, ShoppingBag, MapPin, Truck } from "lucide-react";
 
-function hasValidPrice(price: string | undefined): boolean {
-  if (!price) return false;
-  return /\$[\d.]+/.test(price);
-}
-
 function ProductCard({ item }: { item: MenuItem }) {
   const { addLine } = useCart();
+  const priceOf = usePriceLookup();
   const [selectedFlavor, setSelectedFlavor] = useState(
     item.flavors[0] ?? ""
   );
@@ -23,6 +20,7 @@ function ProductCard({ item }: { item: MenuItem }) {
   const [quantity, setQuantity] = useState(item.minQuantity);
 
   const selectedSizeObj = item.sizes.find((s) => s.label === selectedSize);
+  const selectedPrice = priceOf(item.id, selectedFlavor, selectedSize);
   const minLabel =
     item.minQuantity > 1
       ? `Minimum order: ${formatMinimum(item.minQuantity, item.quantityLabel)}`
@@ -37,7 +35,6 @@ function ProductCard({ item }: { item: MenuItem }) {
       quantity,
       minQuantity: item.minQuantity,
       quantityLabel: item.quantityLabel,
-      price: selectedSizeObj?.price || undefined,
       image: item.image ?? "",
     });
   }
@@ -201,9 +198,9 @@ function ProductCard({ item }: { item: MenuItem }) {
 
       {/* Price */}
       <div className="px-6">
-        {selectedSizeObj?.price && hasValidPrice(selectedSizeObj.price) && (
+        {selectedPrice !== undefined && (
           <p className="mt-4 text-sm font-semibold text-ink">
-            {selectedSizeObj.price}
+            {formatCents(selectedPrice)}
           </p>
         )}
       </div>

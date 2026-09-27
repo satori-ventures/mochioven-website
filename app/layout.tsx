@@ -5,6 +5,7 @@ import { siteConfig } from "@/lib/site-config";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { CartProvider } from "@/lib/cart-context";
+import { PricesProvider } from "@/lib/prices-context";
 import { CartPanel } from "@/components/cart-panel";
 
 const fraunces = Fraunces({
@@ -62,12 +63,14 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${fraunces.variable} ${poppins.variable}`}>
       <body className="font-sans">
-        <CartProvider>
-          <Header />
-          <main>{children}</main>
-          <Footer />
-          <CartPanel />
-        </CartProvider>
+        <PricesProvider>
+          <CartProvider>
+            <Header />
+            <main>{children}</main>
+            <Footer />
+            <CartPanel />
+          </CartProvider>
+        </PricesProvider>
       </body>
     </html>
   );

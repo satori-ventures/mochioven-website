@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useCart, type CartLine } from "@/lib/cart-context";
 import { formatMinimum } from "@/lib/menu-data";
 import { siteConfig } from "@/lib/site-config";
-import { getDeliveryFee, parsePrice, formatFee, isValidZip, isSummerlinZip } from "@/lib/delivery-fee";
+import { getDeliveryFee, formatFee, isValidZip, isSummerlinZip } from "@/lib/delivery-fee";
+import { formatCents, usePriceLookup } from "@/lib/prices-context";
 import { businessDateString, isWithinLeadTime } from "@/lib/order-dates";
 import { X, Minus, Plus, Trash2, ShoppingBag, Lock, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -43,15 +43,6 @@ const initialCheckout: CheckoutInfo = {
   notes: "",
 };
 
-function cartSubtotal(lines: CartLine[]): number {
-  return lines.reduce((sum, l) => sum + parsePrice(l.price) * l.quantity, 0);
-}
-
-function hasValidPrice(price: string | undefined): boolean {
-  if (!price) return false;
-  return /\$[\d.]+/.test(price);
-}
-
 function lineDetails(line: CartLine): string {
   const details = [line.flavor, line.size].filter(Boolean).join(" · ");
   return line.minQuantity > 1
@@ -59,11 +50,45 @@ function lineDetails(line: CartLine): string {
     : details;
 }
 
-export function createSquareCheckout(
-  _lines: CartLine[],
-  _checkout: CheckoutInfo
-): void {
-  // TODO: Connect to Square Checkout API.
+const CHECKOUT_FAILED_MESSAGE =
+  "We could not start checkout. Please try again, or order through our Square shop.";
+
+type CheckoutError = { message: string; showShopLink: boolean };
+
+/**
+ * The order request for /api/checkout: only what the customer chose. Prices,
+ * fees, and taxes are calculated on the server from Square.
+ */
+function buildCheckoutRequest(
+  lines: CartLine[],
+  checkout: CheckoutInfo,
+  idempotencyKey: string
+) {
+  return {
+    idempotencyKey,
+    lines: lines.map((l) => ({
+      itemId: l.itemId,
+      flavor: l.flavor,
+      size: l.size,
+      quantity: l.quantity,
+    })),
+    customer: { name: checkout.name, phone: checkout.phone, email: checkout.email },
+    fulfillment:
+      checkout.fulfillment === "delivery"
+        ? {
+            type: "delivery",
+            address: checkout.address,
+            address2: checkout.address2,
+            city: checkout.city,
+            zip: checkout.zip,
+          }
+        : { type: "pickup" },
+    timing:
+      checkout.timing === "scheduled"
+        ? { type: "scheduled", date: checkout.date, window: checkout.timeWindow }
+        : { type: "asap" },
+    notes: checkout.notes,
+  };
 }
 
 export function CartPanel() {
@@ -73,17 +98,23 @@ export function CartPanel() {
     closeCart,
     updateQuantity,
     removeLine,
-    clearCart,
     totalCount,
   } = useCart();
-  const router = useRouter();
+  const priceOf = usePriceLookup();
   const [checkout, setCheckout] = useState<CheckoutInfo>(initialCheckout);
   const [showSummary, setShowSummary] = useState(false);
   const [triedSubmit, setTriedSubmit] = useState(false);
+  const [idempotencyKey, setIdempotencyKey] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [checkoutError, setCheckoutError] = useState<CheckoutError | null>(null);
   if (!isOpen) return null;
 
   const today = businessDateString();
-  const subtotal = cartSubtotal(lines);
+  const unitPrice = (line: CartLine) => priceOf(line.itemId, line.flavor, line.size);
+  const allLinesPriced = lines.length > 0 && lines.every((l) => unitPrice(l) !== undefined);
+  const subtotalCents = allLinesPriced
+    ? lines.reduce((sum, l) => sum + (unitPrice(l) ?? 0) * l.quantity, 0)
+    : null;
   const zipValid = isValidZip(checkout.zip);
   const feeAmount =
     checkout.fulfillment === "pickup"
@@ -93,9 +124,10 @@ export function CartPanel() {
         : null;
   const outsideDeliveryArea =
     checkout.fulfillment === "delivery" && zipValid && feeAmount === null;
-  const pricesAvailable = subtotal > 0;
-  const estimatedTotal =
-    pricesAvailable && feeAmount !== null ? subtotal + feeAmount : null;
+  const estimatedTotalCents =
+    subtotalCents !== null && feeAmount !== null
+      ? subtotalCents + feeAmount * 100
+      : null;
 
   const deliveryFeeLabel =
     checkout.fulfillment === "pickup"
@@ -132,17 +164,46 @@ export function CartPanel() {
       setTriedSubmit(true);
       return;
     }
-    createSquareCheckout(lines, checkout);
+    // One idempotency key per review: retries and double clicks reuse it, so
+    // Square returns the same checkout; "Edit order" starts a new one.
+    setIdempotencyKey(crypto.randomUUID());
+    setCheckoutError(null);
     setShowSummary(true);
   }
 
-  function handleConfirm() {
-    clearCart();
-    closeCart();
+  function handleEditOrder() {
+    setCheckoutError(null);
     setShowSummary(false);
-    setTriedSubmit(false);
-    setCheckout(initialCheckout);
-    router.push("/order-confirmed");
+  }
+
+  async function handleConfirm() {
+    if (submitting) return;
+    setSubmitting(true);
+    setCheckoutError(null);
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(buildCheckoutRequest(lines, checkout, idempotencyKey)),
+      });
+      const data: { url?: string; message?: string } = await res
+        .json()
+        .catch(() => ({}));
+      if (res.ok && data.url) {
+        // Leave the site for Square's hosted checkout; the cart is cleared on
+        // /order-confirmed after payment.
+        window.location.assign(data.url);
+        return;
+      }
+      setCheckoutError(
+        data.message
+          ? { message: data.message, showShopLink: false }
+          : { message: CHECKOUT_FAILED_MESSAGE, showShopLink: true }
+      );
+    } catch {
+      setCheckoutError({ message: CHECKOUT_FAILED_MESSAGE, showShopLink: true });
+    }
+    setSubmitting(false);
   }
 
   const timingLabel =
@@ -158,7 +219,7 @@ export function CartPanel() {
         <div className="flex justify-between text-sm">
           <span className="text-ink/70">Subtotal</span>
           <span className="font-medium text-ink">
-            {pricesAvailable ? `$${subtotal.toFixed(2)}` : "—"}
+            {subtotalCents !== null ? formatCents(subtotalCents) : "—"}
           </span>
         </div>
         <div className="flex justify-between text-sm">
@@ -172,7 +233,7 @@ export function CartPanel() {
         <div className="flex justify-between border-t border-coral-100 pt-2 text-sm">
           <span className="font-semibold text-ink">Estimated total</span>
           <span className="font-semibold text-ink">
-            {estimatedTotal !== null ? `$${estimatedTotal.toFixed(2)}` : "—"}
+            {estimatedTotalCents !== null ? formatCents(estimatedTotalCents) : "—"}
           </span>
         </div>
       </div>
@@ -222,11 +283,6 @@ export function CartPanel() {
         <div className="flex-1 overflow-y-auto px-5 py-4">
           {showSummary ? (
             <div className="space-y-4">
-              <div className="rounded-xl bg-coral-50 p-4">
-                <p className="text-sm font-semibold text-coral-700">
-                  Test mode: this will connect to Square checkout.
-                </p>
-              </div>
               <div>
                 <h3 className="mb-2 text-sm font-semibold uppercase tracking-wider text-ink/50">
                   Order summary
@@ -240,8 +296,10 @@ export function CartPanel() {
                     <p className="text-ink/60">
                       {lineDetails(line)} · Qty {line.quantity}
                     </p>
-                    {hasValidPrice(line.price) && (
-                      <p className="text-ink/60">{line.price} each</p>
+                    {unitPrice(line) !== undefined && (
+                      <p className="text-ink/60">
+                        {formatCents(unitPrice(line)!)} each
+                      </p>
                     )}
                   </div>
                 ))}
@@ -284,16 +342,40 @@ export function CartPanel() {
                   )}
                 </dl>
               </div>
+              {checkoutError && (
+                <div role="alert" className="rounded-xl bg-red-50 p-3">
+                  <p className="text-pretty text-sm text-red-700">
+                    {checkoutError.showShopLink ? (
+                      <>
+                        We could not start checkout. Please try again, or order
+                        through{" "}
+                        <a
+                          href={siteConfig.squareShopUrl}
+                          className="font-medium underline underline-offset-2"
+                        >
+                          our Square shop
+                        </a>
+                        .
+                      </>
+                    ) : (
+                      checkoutError.message
+                    )}
+                  </p>
+                </div>
+              )}
               <button
                 type="button"
                 onClick={handleConfirm}
-                className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-full bg-coral-600 px-6 py-3 text-base font-semibold text-white shadow-md transition-all duration-200 hover:bg-coral-700"
+                disabled={submitting}
+                className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-full bg-coral-600 px-6 py-3 text-base font-semibold text-white shadow-md transition-all duration-200 hover:bg-coral-700 disabled:opacity-60"
               >
-                Confirm order
+                <Lock className="h-4 w-4" />
+                {submitting ? "Starting checkout…" : "Confirm order"}
               </button>
               <button
                 type="button"
-                onClick={() => setShowSummary(false)}
+                onClick={handleEditOrder}
+                disabled={submitting}
                 className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-full border-2 border-coral-300 px-6 py-3 text-base font-semibold text-coral-700 transition-all duration-200 hover:border-coral-400 hover:bg-coral-100"
               >
                 <Pencil className="h-4 w-4" />
@@ -320,8 +402,10 @@ export function CartPanel() {
                       {line.name}
                     </p>
                     <p className="text-xs text-ink/60">{lineDetails(line)}</p>
-                    {hasValidPrice(line.price) && (
-                      <p className="mt-1 text-xs text-ink/60">{line.price}</p>
+                    {unitPrice(line) !== undefined && (
+                      <p className="mt-1 text-xs text-ink/60">
+                        {formatCents(unitPrice(line)!)}
+                      </p>
                     )}
                     <div className="mt-2 flex items-center gap-2">
                       <button
@@ -737,8 +821,8 @@ export function CartPanel() {
               <div className="shrink-0">
                 <p className="text-xs text-ink/50">Estimated total</p>
                 <p className="text-lg font-semibold text-ink">
-                  {estimatedTotal !== null
-                    ? `$${estimatedTotal.toFixed(2)}`
+                  {estimatedTotalCents !== null
+                    ? formatCents(estimatedTotalCents)
                     : "—"}
                 </p>
               </div>

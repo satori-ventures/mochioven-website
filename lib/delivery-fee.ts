@@ -2,12 +2,6 @@ import { siteConfig } from "@/lib/site-config";
 
 export type FulfillmentType = "pickup" | "delivery";
 
-export function parsePrice(price: string | undefined): number {
-  if (!price) return 0;
-  const match = price.match(/\$([\d.]+)/);
-  return match ? parseFloat(match[1]) : 0;
-}
-
 export function isValidZip(zip: string): boolean {
   return /^\d{5}$/.test(zip);
 }
