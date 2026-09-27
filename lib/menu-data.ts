@@ -12,6 +12,8 @@ export type MenuItem = {
   imageWidth?: number;
   imageHeight?: number;
   imagePlaceholder?: string;
+  /** Small caption shown under the photo. */
+  imageCaption?: string;
   alt: string;
   type: "standard" | "custom";
   flavorChoice: "single" | "none";
@@ -49,6 +51,7 @@ export const menuItems: MenuItem[] = [
     imageWidth: 1536,
     imageHeight: 1024,
     alt: "A golden mochi cake with a crisp edge, topped with sliced almonds and powdered sugar, held in one hand",
+    imageCaption: "Shown with optional toasted almonds.",
     type: "standard",
     flavorChoice: "single",
     flavorOption: {

@@ -99,9 +99,18 @@ function ProductCard({ item }: { item: MenuItem }) {
         )}
       </div>
 
-      <div className="px-6 pt-6">
-        <h3 className="text-xl font-semibold text-ink">{item.name}</h3>
-      </div>
+      {item.imageCaption ? (
+        // The caption fits in the title row's 24px top padding (6px + 16px
+        // line + 2px), so the title and the rows of the next card stay aligned.
+        <div className="px-6 pt-1.5">
+          <p className="text-xs text-ink/50">{item.imageCaption}</p>
+          <h3 className="mt-0.5 text-xl font-semibold text-ink">{item.name}</h3>
+        </div>
+      ) : (
+        <div className="px-6 pt-6">
+          <h3 className="text-xl font-semibold text-ink">{item.name}</h3>
+        </div>
+      )}
       <div className="px-6">
         <p className="mt-2 text-[15px] leading-relaxed text-ink/70">
           {item.description}
