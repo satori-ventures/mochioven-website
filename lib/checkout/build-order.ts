@@ -30,8 +30,9 @@ function deliveryAddressText(f: Extract<ValidOrder["fulfillment"], { type: "deli
 
 /**
  * The note the owner reads in Square: timing, pickup or delivery, the address,
- * and the customer's notes. In note-only delivery mode it also carries the
- * contact details, because there is no fulfillment recipient.
+ * and the customer's notes. In note-only delivery mode it starts with the
+ * customer's name and phone ("Name, +1… | ASAP | Delivery to …"), because there
+ * is no fulfillment recipient and Square shows the card holder's name instead.
  */
 export function buildOrderNote(order: ValidOrder, includeContact: boolean): string {
   const timing =
@@ -44,7 +45,7 @@ export function buildOrderNote(order: ValidOrder, includeContact: boolean): stri
       : `Delivery to ${deliveryAddressText(order.fulfillment)}`;
   const parts = [timing, fulfillment];
   if (includeContact) {
-    parts.push(`Name: ${order.customer.name}`, `Phone: ${order.customer.phoneE164}`);
+    parts.unshift(`${order.customer.name}, ${order.customer.phoneE164}`);
   }
   const base = parts.join(" | ");
   if (!order.notes) return base.slice(0, MAX_NOTE_LENGTH);
