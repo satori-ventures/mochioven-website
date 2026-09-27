@@ -3,7 +3,7 @@ export type MenuItem = {
   name: string;
   description: string;
   flavors: string[];
-  sizes: { label: string; price?: string; contents?: string }[];
+  sizes: { label: string; contents?: string }[];
   minQuantity: number;
   quantityLabel: string;
   /** null shows imagePlaceholder until the photo is added. */
@@ -26,8 +26,8 @@ export const menuItems: MenuItem[] = [
     description: "Soft, buttery, and delicately chewy, with a crispy golden edge.",
     flavors: ["Classic Butter", "Citrus Matcha", "Velvety Ube"],
     sizes: [
-      { label: "Half dozen", price: "[PRICE]" },
-      { label: "1 dozen", price: "[PRICE]" },
+      { label: "Half dozen" },
+      { label: "1 dozen" },
     ],
     minQuantity: 1,
     quantityLabel: "",
@@ -42,7 +42,7 @@ export const menuItems: MenuItem[] = [
     description:
       "Our take on the classic madeleine. Crispy shell edges, tender chewy center.",
     flavors: ["Classic Butter"],
-    sizes: [{ label: "1 dozen", price: "[PRICE]" }],
+    sizes: [{ label: "1 dozen" }],
     minQuantity: 1,
     quantityLabel: "dozen",
     image: "/images/Maddies.JPG",
@@ -56,7 +56,7 @@ export const menuItems: MenuItem[] = [
     description:
       "Assorted mini cupcakes in Classic Butter, Citrus Matcha, and Velvety Ube, each topped with a luxurious light buttercream that is not too sweet.",
     flavors: ["Assorted"],
-    sizes: [{ label: "1 dozen", price: "[PRICE]" }],
+    sizes: [{ label: "1 dozen" }],
     minQuantity: 2,
     quantityLabel: "dozen",
     image: "/images/Mini_Mochis.jpeg",
@@ -73,12 +73,10 @@ export const menuItems: MenuItem[] = [
     sizes: [
       {
         label: "Full box",
-        price: "[PRICE]",
         contents: "4 of each mochi cake flavor, plus 6 Mochi Maddies",
       },
       {
         label: "Half box",
-        price: "[PRICE]",
         contents: "2 of each mochi cake flavor, plus 4 Mochi Maddies",
       },
     ],
@@ -91,3 +89,62 @@ export const menuItems: MenuItem[] = [
     flavorChoice: "none",
   },
 ];
+
+// Square catalog naming: item names match `name` above exactly, and variation
+// names are "{Flavor} - {Size}". Items without a flavor choice use "Assorted".
+const CATALOG_ASSORTED_FLAVOR = "Assorted";
+
+export type MenuVariant = {
+  item: MenuItem;
+  /** The flavor value the cart uses ("" when the item has no flavor). */
+  flavor: string;
+  size: string;
+  catalogVariationName: string;
+};
+
+/** Every orderable item, flavor, and size combination. */
+export function menuVariants(): MenuVariant[] {
+  return menuItems.flatMap((item) => {
+    const flavors =
+      item.flavorChoice === "single" ? item.flavors : [item.flavors[0] ?? ""];
+    return flavors.flatMap((flavor) =>
+      item.sizes.map((size) => ({
+        item,
+        flavor,
+        size: size.label,
+        catalogVariationName: `${
+          item.flavorChoice === "single" ? flavor : CATALOG_ASSORTED_FLAVOR
+        } - ${size.label}`,
+      }))
+    );
+  });
+}
+
+export function findMenuVariant(
+  itemId: string,
+  flavor: string,
+  size: string
+): MenuVariant | undefined {
+  return menuVariants().find(
+    (v) => v.item.id === itemId && v.flavor === flavor && v.size === size
+  );
+}
+
+/** Key for looking up a price for one item, flavor, and size. */
+export function priceKey(itemId: string, flavor: string, size: string): string {
+  return `${itemId}|${flavor}|${size}`;
+}
+
+/**
+ * Normalizes a catalog name for matching: ignores letter case, extra spaces,
+ * and the dash type (hyphen, en dash, em dash, and similar).
+ */
+export function normalizeCatalogName(name: string): string {
+  return name
+    .normalize("NFKC")
+    .toLowerCase()
+    .replace(/[‐-―−﹘﹣－-]/g, "-")
+    .replace(/\s*-\s*/g, " - ")
+    .replace(/\s+/g, " ")
+    .trim();
+}

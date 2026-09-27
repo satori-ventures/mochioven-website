@@ -18,7 +18,6 @@ export type CartLine = {
   quantity: number;
   minQuantity: number;
   quantityLabel: string;
-  price?: string;
   image: string;
 };
 

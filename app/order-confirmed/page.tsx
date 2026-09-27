@@ -1,3 +1,5 @@
+import { ClearCart } from "@/components/clear-cart";
+
 export const metadata = {
   title: "Order Confirmed",
 };
@@ -5,6 +7,7 @@ export const metadata = {
 export default function OrderConfirmedPage() {
   return (
     <div className="flex min-h-[60vh] items-center justify-center px-4 py-20">
+      <ClearCart />
       <div className="max-w-lg text-center">
         <h1 className="text-balance text-3xl font-semibold text-ink sm:text-4xl">
           Thank you! Your order is in.
