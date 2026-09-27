@@ -10,7 +10,11 @@ The Mochi Oven marketing and ordering website.
   - `lib/site-config.ts`: business settings (ORDER_MODE, pickup windows, delivery fees, Summerlin ZIP codes, contact details, Formspree endpoint)
   - `lib/menu-data.ts`: menu items, flavors, sizes, minimum quantities
   - `lib/delivery-fee.ts`: `getDeliveryFee(fulfillment, zip)`
-  - The cart and checkout form, including the `createSquareCheckout` function (currently a TODO)
+  - `lib/order-dates.ts`: order dates and the rush-order window in Las Vegas time
+  - `components/cart-panel.tsx`: the cart, checkout form, and review screen; "Confirm order" posts to `/api/checkout`
+  - `app/api/checkout/route.ts`: validates the order and creates a Square hosted checkout (payment link); `lib/checkout/*` holds validation and order building
+  - `app/api/menu-prices/route.ts` and `lib/square/*`: menu prices from the Square catalog (cached about 5 minutes); server only
+  - Square settings are server environment variables in Netlify: `SQUARE_ACCESS_TOKEN`, `SQUARE_LOCATION_ID`, `SQUARE_ENVIRONMENT` (`sandbox` or `production`), and optional `SQUARE_DELIVERY_MODE` (`delivery` or `note_only`)
 - `ORDER_MODE` is `"cart"`. Do not change it.
 - Agent tools (such as Grok Bot) use the `mochioven-bot` account only. The owner may also work directly, or through Claude Code on the owner's computer, under the same rules.
 
