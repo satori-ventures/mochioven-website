@@ -23,10 +23,10 @@ export type MenuItem = {
    */
   flavorOption?: {
     baseFlavor: string;
-    plainLabel: string;
-    label: string;
+    heading: string;
+    noLabel: string;
+    yesLabel: string;
     flavor: string;
-    note: string;
   };
 };
 
@@ -56,10 +56,10 @@ export const menuItems: MenuItem[] = [
     flavorChoice: "single",
     flavorOption: {
       baseFlavor: "Classic Butter",
-      plainLabel: "Plain",
-      label: "Toasted almonds",
+      heading: "Add almonds",
+      noLabel: "No",
+      yesLabel: "Yes",
       flavor: "Classic Butter with Toasted Almonds",
-      note: "Contains almonds",
     },
   },
   {

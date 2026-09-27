@@ -150,44 +150,6 @@ function ProductCard({ item }: { item: MenuItem }) {
                 ))}
               </div>
             )}
-            {option && optionAvailable && (
-              <div
-                role="group"
-                aria-label={`${option.baseFlavor} options`}
-                className="mt-3 flex flex-wrap items-start gap-2"
-              >
-                <button
-                  type="button"
-                  aria-pressed={!optionChosen}
-                  onClick={() => setWithOption(false)}
-                  className={cn(
-                    "min-h-[44px] min-w-[44px] rounded-full border px-3 py-1.5 text-xs font-medium transition-all",
-                    !optionChosen
-                      ? "border-coral-600 bg-coral-600 text-white"
-                      : "border-coral-200 text-coral-700 hover:bg-coral-100"
-                  )}
-                >
-                  {option.plainLabel}
-                </button>
-                <div className="flex flex-col items-start">
-                  <button
-                    type="button"
-                    aria-pressed={optionChosen}
-                    onClick={() => setWithOption(true)}
-                    className={cn(
-                      "min-h-[44px] min-w-[44px] rounded-full border px-3 py-1.5 text-xs font-medium transition-all",
-                      optionChosen
-                        ? "border-coral-600 bg-coral-600 text-white"
-                        : "border-coral-200 text-coral-700 hover:bg-coral-100"
-                    )}
-                  >
-                    {option.label}
-                    {optionDifference && ` ${optionDifference}`}
-                  </button>
-                  <p className="mt-1 text-xs text-ink/50">{option.note}</p>
-                </div>
-              </div>
-            )}
           </div>
         )}
 
@@ -203,39 +165,70 @@ function ProductCard({ item }: { item: MenuItem }) {
         )}
       </div>
 
-      {/* Sizes */}
+      {/* Sizes, and "Add almonds" beside them (below when there is no room) */}
       <div className="px-6">
-        <div className="mt-4">
-          <p className="text-xs font-semibold uppercase tracking-wider text-coral-700">
-            Size
-          </p>
-          {item.sizes.length === 1 ? (
-            <p className="mt-2 text-[15px] leading-relaxed text-ink/70">
-              {item.sizes[0].label}
+        <div className="mt-4 flex flex-wrap items-start gap-x-8 gap-y-4">
+          <div className="min-w-0 max-w-full">
+            <p className="text-xs font-semibold uppercase tracking-wider text-coral-700">
+              Size
             </p>
-          ) : (
-            <div className="mt-2 flex flex-wrap gap-2">
-              {item.sizes.map((size) => (
-                <button
-                  key={size.label}
-                  type="button"
-                  onClick={() => setSelectedSize(size.label)}
-                  className={cn(
-                    "min-h-[44px] min-w-[44px] rounded-full border px-3 py-1.5 text-xs font-medium transition-all",
-                    selectedSize === size.label
-                      ? "border-coral-600 bg-coral-600 text-white"
-                      : "border-coral-200 text-coral-700 hover:bg-coral-100"
-                  )}
-                >
-                  {size.label}
-                </button>
-              ))}
+            {item.sizes.length === 1 ? (
+              <p className="mt-2 text-[15px] leading-relaxed text-ink/70">
+                {item.sizes[0].label}
+              </p>
+            ) : (
+              <div className="mt-2 flex flex-wrap gap-2">
+                {item.sizes.map((size) => (
+                  <button
+                    key={size.label}
+                    type="button"
+                    onClick={() => setSelectedSize(size.label)}
+                    className={cn(
+                      "min-h-[44px] min-w-[44px] rounded-full border px-3 py-1.5 text-xs font-medium transition-all",
+                      selectedSize === size.label
+                        ? "border-coral-600 bg-coral-600 text-white"
+                        : "border-coral-200 text-coral-700 hover:bg-coral-100"
+                    )}
+                  >
+                    {size.label}
+                  </button>
+                ))}
+              </div>
+            )}
+            {selectedSizeObj?.contents && (
+              <p className="mt-1.5 text-xs text-ink/50">
+                {selectedSizeObj.contents}
+              </p>
+            )}
+          </div>
+          {option && optionAvailable && (
+            <div role="group" aria-labelledby={`${item.id}-option-heading`}>
+              <p
+                id={`${item.id}-option-heading`}
+                className="text-xs font-semibold uppercase tracking-wider text-coral-700"
+              >
+                {option.heading}
+              </p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {[false, true].map((yes) => (
+                  <button
+                    key={String(yes)}
+                    type="button"
+                    aria-pressed={optionChosen === yes}
+                    onClick={() => setWithOption(yes)}
+                    className={cn(
+                      "min-h-[44px] min-w-[44px] rounded-full border px-3 py-1.5 text-xs font-medium transition-all",
+                      optionChosen === yes
+                        ? "border-coral-600 bg-coral-600 text-white"
+                        : "border-coral-200 text-coral-700 hover:bg-coral-100"
+                    )}
+                  >
+                    {yes ? option.yesLabel : option.noLabel}
+                    {yes && optionDifference && ` ${optionDifference}`}
+                  </button>
+                ))}
+              </div>
             </div>
-          )}
-          {selectedSizeObj?.contents && (
-            <p className="mt-1.5 text-xs text-ink/50">
-              {selectedSizeObj.contents}
-            </p>
           )}
         </div>
       </div>
