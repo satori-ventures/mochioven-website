@@ -8,6 +8,9 @@ export type MenuItem = {
   quantityLabel: string;
   /** null shows imagePlaceholder until the photo is added. */
   image: string | null;
+  /** Pixel size of `image`, passed to next/image. */
+  imageWidth?: number;
+  imageHeight?: number;
   imagePlaceholder?: string;
   alt: string;
   type: "standard" | "custom";
@@ -42,8 +45,10 @@ export const menuItems: MenuItem[] = [
     ],
     minQuantity: 1,
     quantityLabel: "",
-    image: "/images/Mochi_Cakes.JPG",
-    alt: "Assorted mochi cakes with golden crispy edges",
+    image: "/images/mochi-cake.webp",
+    imageWidth: 1536,
+    imageHeight: 1024,
+    alt: "A golden mochi cake with a crisp edge, topped with sliced almonds and powdered sugar, held in one hand",
     type: "standard",
     flavorChoice: "single",
     flavorOption: {
@@ -64,7 +69,9 @@ export const menuItems: MenuItem[] = [
     minQuantity: 1,
     quantityLabel: "dozen",
     image: "/images/Maddies.JPG",
-    alt: "Mochi Maddies madeleines with crispy shell edges",
+    imageWidth: 2048,
+    imageHeight: 1536,
+    alt: "A row of Mochi Maddies madeleines dusted with powdered sugar on a white tray",
     type: "standard",
     flavorChoice: "single",
   },
@@ -78,6 +85,8 @@ export const menuItems: MenuItem[] = [
     minQuantity: 2,
     quantityLabel: "dozen",
     image: "/images/Mini_Mochis.jpeg",
+    imageWidth: 1536,
+    imageHeight: 2048,
     alt: "Assorted mini mochi cupcakes topped with buttercream",
     type: "standard",
     flavorChoice: "none",
@@ -101,6 +110,8 @@ export const menuItems: MenuItem[] = [
     minQuantity: 1,
     quantityLabel: "",
     image: "/images/the-sampler.jpg",
+    imageWidth: 1536,
+    imageHeight: 1399,
     alt: "An open box of assorted mochi cakes and Mochi Maddies",
     type: "standard",
     flavorChoice: "none",

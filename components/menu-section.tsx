@@ -71,7 +71,16 @@ function ProductCard({ item }: { item: MenuItem }) {
         className="absolute inset-0 -z-10 rounded-3xl bg-coral-50/40 ring-1 ring-coral-100/80 transition-all duration-300 [grid-row:1/9] group-hover:shadow-xl group-hover:ring-coral-200"
       />
       <div className="relative aspect-[16/10] overflow-hidden rounded-t-3xl">
-        {item.image ? (
+        {item.image && item.imageWidth && item.imageHeight ? (
+          <Image
+            src={item.image}
+            alt={item.alt}
+            width={item.imageWidth}
+            height={item.imageHeight}
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+            sizes="(max-width: 640px) 100vw, 50vw"
+          />
+        ) : item.image ? (
           <Image
             src={item.image}
             alt={item.alt}
