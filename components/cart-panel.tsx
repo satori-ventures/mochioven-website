@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useCart, type CartLine } from "@/lib/cart-context";
 import { formatMinimum } from "@/lib/menu-data";
@@ -114,6 +114,22 @@ export function CartPanel() {
   const [idempotencyKey, setIdempotencyKey] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [checkoutError, setCheckoutError] = useState<CheckoutError | null>(null);
+
+  // When the customer comes back from Square with the browser's Back button,
+  // the browser may restore this page from its back-forward cache exactly as it
+  // was, still "Starting checkout…". Reset so "Edit order" and "Confirm order"
+  // work again, with a new idempotency key so confirming creates a new link.
+  useEffect(() => {
+    function handlePageShow(event: PageTransitionEvent) {
+      if (!event.persisted) return;
+      setSubmitting(false);
+      setCheckoutError(null);
+      setIdempotencyKey(crypto.randomUUID());
+    }
+    window.addEventListener("pageshow", handlePageShow);
+    return () => window.removeEventListener("pageshow", handlePageShow);
+  }, []);
+
   if (!isOpen) return null;
 
   const today = businessDateString();
@@ -236,7 +252,9 @@ export function CartPanel() {
           </span>
         </div>
         <div className="flex justify-between text-sm">
-          <span className="text-ink/70">Delivery</span>
+          <span className="text-ink/70">
+            {checkout.fulfillment === "pickup" ? "Pickup" : "Delivery"}
+          </span>
           <span className="font-medium text-ink">{deliveryFeeLabel}</span>
         </div>
         <div className="flex justify-between text-sm">
@@ -385,6 +403,9 @@ export function CartPanel() {
                 <Lock className="h-4 w-4" />
                 {submitting ? "Starting checkout…" : "Confirm order"}
               </button>
+              <p className="text-pretty text-xs text-ink/50">
+                {"You'll pay on Square's secure page. To change your order, use your browser's Back button."}
+              </p>
               <button
                 type="button"
                 onClick={handleEditOrder}
