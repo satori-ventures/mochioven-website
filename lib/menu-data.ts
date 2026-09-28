@@ -102,12 +102,12 @@ export const menuItems: MenuItem[] = [
     flavors: [],
     sizes: [
       {
-        label: "Full box",
-        contents: "4 of each mochi cake flavor, plus 6 Mochi Maddies",
-      },
-      {
         label: "Half box",
         contents: "2 of each mochi cake flavor, plus 4 Mochi Maddies",
+      },
+      {
+        label: "Full box",
+        contents: "4 of each mochi cake flavor, plus 6 Mochi Maddies",
       },
     ],
     minQuantity: 1,

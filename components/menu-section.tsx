@@ -6,7 +6,7 @@ import Link from "next/link";
 import { menuItems, formatMinimum, type MenuItem } from "@/lib/menu-data";
 import { siteConfig } from "@/lib/site-config";
 import { useCart } from "@/lib/cart-context";
-import { formatCents, usePriceLookup } from "@/lib/prices-context";
+import { formatCents, usePriceLookup, usePricesLoaded } from "@/lib/prices-context";
 import { cn } from "@/lib/utils";
 import { Plus, Minus, ArrowRight, ShoppingBag, MapPin, Truck } from "lucide-react";
 
@@ -20,6 +20,7 @@ function formatPriceDifference(cents: number): string {
 function ProductCard({ item }: { item: MenuItem }) {
   const { addLine } = useCart();
   const priceOf = usePriceLookup();
+  const pricesLoaded = usePricesLoaded();
   const [selectedFlavor, setSelectedFlavor] = useState(
     item.flavors[0] ?? ""
   );
@@ -48,7 +49,11 @@ function ProductCard({ item }: { item: MenuItem }) {
       ? `Minimum order: ${formatMinimum(item.minQuantity, item.quantityLabel)}`
       : "";
 
+  // A choice without a Square price cannot be ordered online.
+  const unavailable = pricesLoaded && selectedPrice === undefined;
+
   function handleAdd() {
+    if (unavailable) return;
     addLine({
       itemId: item.id,
       name: item.name,
@@ -61,14 +66,14 @@ function ProductCard({ item }: { item: MenuItem }) {
     });
   }
 
-  // Each card spans 9 rows of the menu grid and shares them with the card next
+  // Each card spans 8 rows of the menu grid and shares them with the card next
   // to it (subgrid), so flavor, size, quantity, and the button line up. The
-  // card background covers rows 1-8; row 9 is the space between cards.
+  // card background covers rows 1-7; row 8 is the space between cards.
   return (
-    <div className="group relative isolate grid [grid-row:span_9] [grid-template-rows:subgrid]">
+    <div className="group relative isolate grid [grid-row:span_8] [grid-template-rows:subgrid]">
       <div
         aria-hidden="true"
-        className="absolute inset-0 -z-10 rounded-3xl bg-coral-50/40 ring-1 ring-coral-100/80 transition-all duration-300 [grid-row:1/9] group-hover:shadow-xl group-hover:ring-coral-200"
+        className="absolute inset-0 -z-10 rounded-3xl bg-coral-50/40 ring-1 ring-coral-100/80 transition-all duration-300 [grid-row:1/8] group-hover:shadow-xl group-hover:ring-coral-200"
       />
       <div className="relative aspect-[16/10] overflow-hidden rounded-t-3xl">
         {item.image && item.imageWidth && item.imageHeight ? (
@@ -233,50 +238,55 @@ function ProductCard({ item }: { item: MenuItem }) {
         </div>
       </div>
 
-      {/* Quantity */}
+      {/* Quantity, and the price beside it (below when there is no room) */}
       <div className="px-6">
-        <div className="mt-4">
-          <p className="text-xs font-semibold uppercase tracking-wider text-coral-700">
-            Quantity
-            {item.quantityLabel && ` (${item.quantityLabel})`}
-          </p>
-          <div className="mt-2 flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() =>
-                setQuantity((q) => Math.max(item.minQuantity, q - 1))
-              }
-              disabled={quantity <= item.minQuantity}
-              className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-coral-200 text-ink/70 transition-colors hover:bg-coral-100 disabled:opacity-40"
-              aria-label="Decrease quantity"
-            >
-              <Minus className="h-4 w-4" />
-            </button>
-            <span className="min-w-[2.5rem] text-center text-sm font-semibold text-ink">
-              {quantity}
-            </span>
-            <button
-              type="button"
-              onClick={() => setQuantity((q) => q + 1)}
-              className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-coral-200 text-ink/70 transition-colors hover:bg-coral-100"
-              aria-label="Increase quantity"
-            >
-              <Plus className="h-4 w-4" />
-            </button>
+        <div className="mt-4 flex flex-wrap items-start gap-x-8 gap-y-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-coral-700">
+              Quantity
+              {item.quantityLabel && ` (${item.quantityLabel})`}
+            </p>
+            <div className="mt-2 flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() =>
+                  setQuantity((q) => Math.max(item.minQuantity, q - 1))
+                }
+                disabled={quantity <= item.minQuantity}
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-coral-200 text-ink/70 transition-colors hover:bg-coral-100 disabled:opacity-40"
+                aria-label="Decrease quantity"
+              >
+                <Minus className="h-4 w-4" />
+              </button>
+              <span className="min-w-[2.5rem] text-center text-sm font-semibold text-ink">
+                {quantity}
+              </span>
+              <button
+                type="button"
+                onClick={() => setQuantity((q) => q + 1)}
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-coral-200 text-ink/70 transition-colors hover:bg-coral-100"
+                aria-label="Increase quantity"
+              >
+                <Plus className="h-4 w-4" />
+              </button>
+            </div>
+            {minLabel && (
+              <p className="mt-1.5 text-xs text-ink/50">{minLabel}</p>
+            )}
           </div>
-          {minLabel && (
-            <p className="mt-1.5 text-xs text-ink/50">{minLabel}</p>
-          )}
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-coral-700">
+              Price each
+            </p>
+            <p className="mt-2 flex min-h-[44px] items-center text-sm font-semibold text-ink">
+              {selectedPrice !== undefined
+                ? formatCents(selectedPrice)
+                : unavailable && (
+                    <span className="font-normal text-ink/50">Not available online</span>
+                  )}
+            </p>
+          </div>
         </div>
-      </div>
-
-      {/* Price */}
-      <div className="px-6">
-        {selectedPrice !== undefined && (
-          <p className="mt-4 text-sm font-semibold text-ink">
-            {formatCents(selectedPrice)}
-          </p>
-        )}
       </div>
 
       {/* Add to order */}
@@ -284,10 +294,12 @@ function ProductCard({ item }: { item: MenuItem }) {
         <button
           type="button"
           onClick={handleAdd}
-          className="mt-auto inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full bg-coral-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-coral-700 hover:shadow-md"
+          disabled={unavailable}
+          className="mt-auto inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full bg-coral-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-coral-700 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-coral-600 disabled:hover:shadow-sm"
         >
           <ShoppingBag className="h-4 w-4" />
           Add to order
+          {selectedPrice !== undefined && ` · ${formatCents(selectedPrice * quantity)}`}
         </button>
       </div>
 
