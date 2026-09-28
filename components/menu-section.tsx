@@ -73,7 +73,7 @@ function ProductCard({ item }: { item: MenuItem }) {
     <div className="group relative isolate grid [grid-row:span_8] [grid-template-rows:subgrid]">
       <div
         aria-hidden="true"
-        className="absolute inset-0 -z-10 rounded-3xl bg-coral-50/40 ring-1 ring-coral-100/80 transition-all duration-300 [grid-row:1/8] group-hover:shadow-xl group-hover:ring-coral-200"
+        className="absolute inset-0 -z-10 rounded-3xl bg-secondary ring-1 ring-coral-100/80 transition-all duration-300 [grid-row:1/8] group-hover:shadow-xl group-hover:ring-coral-200"
       />
       <div className="relative aspect-[16/10] overflow-hidden rounded-t-3xl">
         {item.image && item.imageWidth && item.imageHeight ? (
@@ -108,7 +108,7 @@ function ProductCard({ item }: { item: MenuItem }) {
         // The caption fits in the title row's 24px top padding (6px + 16px
         // line + 2px), so the title and the rows of the next card stay aligned.
         <div className="px-6 pt-1.5">
-          <p className="text-xs text-ink/50">{item.imageCaption}</p>
+          <p className="text-xs text-ink/70">{item.imageCaption}</p>
           <h3 className="mt-0.5 text-xl font-semibold text-ink">{item.name}</h3>
         </div>
       ) : (
@@ -147,7 +147,7 @@ function ProductCard({ item }: { item: MenuItem }) {
                       "min-h-[44px] min-w-[44px] rounded-full border px-3 py-1.5 text-xs font-medium transition-all",
                       selectedFlavor === flavor
                         ? "border-coral-600 bg-coral-600 text-white"
-                        : "border-coral-200 text-coral-700 hover:bg-coral-100"
+                        : "border-coral-200 bg-white text-coral-700 hover:bg-coral-50"
                     )}
                   >
                     {flavor}
@@ -163,7 +163,7 @@ function ProductCard({ item }: { item: MenuItem }) {
             <p className="text-xs font-semibold uppercase tracking-wider text-coral-700">
               Flavors
             </p>
-            <p className="mt-2 text-sm leading-relaxed text-ink/60">
+            <p className="mt-2 text-sm leading-relaxed text-ink/70">
               Assorted: Classic Butter, Citrus Matcha, and Velvety Ube.
             </p>
           </div>
@@ -192,7 +192,7 @@ function ProductCard({ item }: { item: MenuItem }) {
                       "min-h-[44px] min-w-[44px] rounded-full border px-3 py-1.5 text-xs font-medium transition-all",
                       selectedSize === size.label
                         ? "border-coral-600 bg-coral-600 text-white"
-                        : "border-coral-200 text-coral-700 hover:bg-coral-100"
+                        : "border-coral-200 bg-white text-coral-700 hover:bg-coral-50"
                     )}
                   >
                     {size.label}
@@ -201,7 +201,7 @@ function ProductCard({ item }: { item: MenuItem }) {
               </div>
             )}
             {selectedSizeObj?.contents && (
-              <p className="mt-1.5 text-xs text-ink/50">
+              <p className="mt-1.5 text-xs text-ink/70">
                 {selectedSizeObj.contents}
               </p>
             )}
@@ -225,7 +225,7 @@ function ProductCard({ item }: { item: MenuItem }) {
                       "min-h-[44px] min-w-[44px] rounded-full border px-3 py-1.5 text-xs font-medium transition-all",
                       optionChosen === yes
                         ? "border-coral-600 bg-coral-600 text-white"
-                        : "border-coral-200 text-coral-700 hover:bg-coral-100"
+                        : "border-coral-200 bg-white text-coral-700 hover:bg-coral-50"
                     )}
                   >
                     {yes ? option.yesLabel : option.noLabel}
@@ -253,7 +253,7 @@ function ProductCard({ item }: { item: MenuItem }) {
                   setQuantity((q) => Math.max(item.minQuantity, q - 1))
                 }
                 disabled={quantity <= item.minQuantity}
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-coral-200 text-ink/70 transition-colors hover:bg-coral-100 disabled:opacity-40"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-coral-200 bg-white text-ink/70 transition-colors hover:bg-coral-50 disabled:opacity-40"
                 aria-label="Decrease quantity"
               >
                 <Minus className="h-4 w-4" />
@@ -264,14 +264,14 @@ function ProductCard({ item }: { item: MenuItem }) {
               <button
                 type="button"
                 onClick={() => setQuantity((q) => q + 1)}
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-coral-200 text-ink/70 transition-colors hover:bg-coral-100"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-coral-200 bg-white text-ink/70 transition-colors hover:bg-coral-50"
                 aria-label="Increase quantity"
               >
                 <Plus className="h-4 w-4" />
               </button>
             </div>
             {minLabel && (
-              <p className="mt-1.5 text-xs text-ink/50">{minLabel}</p>
+              <p className="mt-1.5 text-xs text-ink/70">{minLabel}</p>
             )}
           </div>
           <div>
@@ -282,7 +282,7 @@ function ProductCard({ item }: { item: MenuItem }) {
               {selectedPrice !== undefined
                 ? formatCents(selectedPrice)
                 : unavailable && (
-                    <span className="font-normal text-ink/50">Not available online</span>
+                    <span className="font-normal text-ink/70">Not available online</span>
                   )}
             </p>
           </div>
