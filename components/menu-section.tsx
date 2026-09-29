@@ -325,7 +325,7 @@ export function MenuSection() {
           {/* Phones: centered as a block, lines left-aligned. Tablet and up:
               each line (icon + text) centered on its own. Each icon sits in a
               first-line-high box so wrapped text stays beside it. */}
-          <div className="mx-auto mt-5 flex w-fit max-w-3xl flex-col gap-2 text-left text-[15px] leading-6 text-ink/70 md:w-full md:items-center">
+          <div className="mx-auto mt-5 flex w-fit max-w-4xl flex-col gap-2 text-left text-[15px] leading-6 text-ink/70 md:w-full md:items-center">
             <p className="flex items-start gap-2">
               <span className="flex h-6 shrink-0 items-center">
                 <MapPin className="h-4 w-4 text-coral-600" />
@@ -337,7 +337,7 @@ export function MenuSection() {
                 <Truck className="h-4 w-4 text-coral-600" />
               </span>
               <span>
-                Delivery is $5 within Summerlin and $10 to select areas of Las Vegas, including the Strip.
+                Delivery (${siteConfig.order.deliveryMinimum} minimum) is $5 within Summerlin and $10 to select areas of Las Vegas, including the Strip.
               </span>
             </p>
           </div>

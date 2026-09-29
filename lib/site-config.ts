@@ -23,6 +23,8 @@ export const siteConfig = {
     pickupFee: 0,
     summerlinDeliveryFee: 5,
     outsideSummerlinDeliveryFee: 10,
+    /** Delivery only: the subtotal before the delivery fee and tax, in dollars. */
+    deliveryMinimum: 45,
     summerlinZips: ["89134", "89135", "89138", "89144"],
     deliveryZipsOutsideSummerlin: [
       "89109", "89117", "89128", "89129", "89145", "89147", "89148",

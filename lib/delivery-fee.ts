@@ -84,6 +84,28 @@ export function addressZipMismatch(address: string, address2: string, zip: strin
 export const ADDRESS_ZIP_MISMATCH_MESSAGE =
   "The ZIP code in your address doesn't match the ZIP code field. Please check both.";
 
+export const DELIVERY_MINIMUM_CENTS = Math.round(siteConfig.order.deliveryMinimum * 100);
+
+/**
+ * Cents still needed to reach the delivery minimum; 0 when it is met or for
+ * pickup. `subtotalCents` is the items only, before the delivery fee and tax.
+ */
+export function deliveryShortfallCents(
+  fulfillment: FulfillmentType,
+  subtotalCents: number
+): number {
+  if (fulfillment !== "delivery") return 0;
+  return Math.max(0, DELIVERY_MINIMUM_CENTS - subtotalCents);
+}
+
+function dollars(cents: number): string {
+  return `$${(cents / 100).toFixed(2)}`;
+}
+
+export function deliveryMinimumMessage(shortfallCents: number): string {
+  return `Delivery orders have a ${dollars(DELIVERY_MINIMUM_CENTS)} minimum. Add ${dollars(shortfallCents)} more, or choose pickup.`;
+}
+
 export function formatFee(fee: number): string {
   if (fee === 0) return "Free";
   return `$${fee}`;
