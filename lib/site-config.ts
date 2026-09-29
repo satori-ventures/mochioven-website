@@ -25,10 +25,10 @@ export const siteConfig = {
     outsideSummerlinDeliveryFee: 10,
     summerlinZips: ["89134", "89135", "89138", "89144"],
     deliveryZipsOutsideSummerlin: [
-      "89117", "89128", "89129", "89130", "89131", "89143", "89145",
-      "89147", "89148", "89149", "89109", "89119", "89169",
+      "89109", "89117", "89128", "89129", "89145", "89147", "89148",
+      "89149", "89178",
     ],
-    confirmationTime: "1 to 4 hours",
+    confirmationTime: "4 hours",
   },
   nav: [
     { label: "Catering", href: "/catering" },

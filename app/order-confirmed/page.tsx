@@ -14,7 +14,7 @@ export default function OrderConfirmedPage() {
         </h1>
         <p className="mt-4 text-pretty text-lg text-ink/60">
           You will receive a confirmation text message and/or email, usually
-          within 1 to 4 hours, with an estimate of when your order will be
+          within 4 hours, with an estimate of when your order will be
           ready.
         </p>
       </div>
