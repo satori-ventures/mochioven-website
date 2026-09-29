@@ -18,10 +18,10 @@ export function Logo() {
       <Image
         src="/images/Mochi_logo.webp"
         alt="The Mochi Oven"
-        width={64}
-        height={64}
+        width={80}
+        height={80}
         priority
-        className="h-12 w-12 object-contain transition-transform duration-300 group-hover:scale-105 sm:h-14 sm:w-14"
+        className="h-[60px] w-[60px] object-contain transition-transform duration-300 group-hover:scale-105 sm:h-[68px] sm:w-[68px]"
       />
     </Link>
   );
@@ -37,7 +37,7 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-coral-100/60 bg-white/90 backdrop-blur-md">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6 sm:py-4">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-2 sm:px-6 sm:py-3">
         {/* Left: logo */}
         <Logo />
 

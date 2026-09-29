@@ -322,15 +322,23 @@ export function MenuSection() {
           <p className="mx-auto mt-4 max-w-xl text-pretty text-[15px] text-ink/70">
             Handmade in small batches in Summerlin.
           </p>
-          <div className="mx-auto mt-5 flex max-w-2xl flex-col items-start gap-2 text-[15px] text-ink/70">
-            <span className="flex items-center gap-2">
-              <MapPin className="h-4 w-4 shrink-0 text-coral-600" />
-              Free curbside pickup at {siteConfig.order.pickupLocation}
-            </span>
-            <span className="flex items-center gap-2">
-              <Truck className="h-4 w-4 shrink-0 text-coral-600" />
-              Delivery is $5 within Summerlin and $10 to select areas of Las Vegas, including the Strip.
-            </span>
+          {/* Centered as a block; each icon sits in a first-line-high box so
+              wrapped text stays beside it. */}
+          <div className="mx-auto mt-5 flex w-fit max-w-3xl flex-col gap-2 text-left text-[15px] leading-6 text-ink/70">
+            <p className="flex items-start gap-2">
+              <span className="flex h-6 shrink-0 items-center">
+                <MapPin className="h-4 w-4 text-coral-600" />
+              </span>
+              <span>Free curbside pickup at {siteConfig.order.pickupLocation}</span>
+            </p>
+            <p className="flex items-start gap-2">
+              <span className="flex h-6 shrink-0 items-center">
+                <Truck className="h-4 w-4 text-coral-600" />
+              </span>
+              <span>
+                Delivery is $5 within Summerlin and $10 to select areas of Las Vegas, including the Strip.
+              </span>
+            </p>
           </div>
           <p className="mx-auto mt-3 max-w-xl text-[15px] text-ink/70">
             Order ahead or ask about same-day. We confirm every order by text or email.
