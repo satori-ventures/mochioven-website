@@ -322,9 +322,10 @@ export function MenuSection() {
           <p className="mx-auto mt-4 max-w-xl text-pretty text-[15px] text-ink/70">
             Handmade in small batches in Summerlin.
           </p>
-          {/* Centered as a block; each icon sits in a first-line-high box so
-              wrapped text stays beside it. */}
-          <div className="mx-auto mt-5 flex w-fit max-w-3xl flex-col gap-2 text-left text-[15px] leading-6 text-ink/70">
+          {/* Phones: centered as a block, lines left-aligned. Tablet and up:
+              each line (icon + text) centered on its own. Each icon sits in a
+              first-line-high box so wrapped text stays beside it. */}
+          <div className="mx-auto mt-5 flex w-fit max-w-3xl flex-col gap-2 text-left text-[15px] leading-6 text-ink/70 md:w-full md:items-center">
             <p className="flex items-start gap-2">
               <span className="flex h-6 shrink-0 items-center">
                 <MapPin className="h-4 w-4 text-coral-600" />
@@ -340,7 +341,7 @@ export function MenuSection() {
               </span>
             </p>
           </div>
-          <p className="mx-auto mt-3 max-w-xl text-[15px] text-ink/70">
+          <p className="mx-auto mt-3 max-w-xl text-balance text-[15px] text-ink/70">
             Order ahead or ask about same-day. We confirm every order by text or email.
           </p>
         </div>
