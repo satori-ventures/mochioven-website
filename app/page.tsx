@@ -175,7 +175,7 @@ export default function Home() {
               <h2 className="text-balance text-3xl font-semibold text-ink sm:text-4xl">
                 A Summerlin microbakery with a chewy obsession
               </h2>
-              <p className="mt-5 text-pretty text-lg leading-relaxed text-ink/70">
+              <p className="mt-5 text-pretty text-base leading-relaxed text-ink/70">
                 The Mochi Oven is a small, home-based microbakery in Summerlin,
                 Las Vegas. We bake Asian-inspired mochi cakes, Mochi Maddies,
                 and bite-size treats in small batches.

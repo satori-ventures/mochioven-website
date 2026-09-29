@@ -14,7 +14,7 @@ export const siteConfig = {
     smsHref: "sms:+17027066255",
   },
   inquiryFormEndpoint: "https://formspree.io/f/mkjgzqld",
-  responseTime: "2 hours",
+  responseTime: "4 hours",
   order: {
     mode: "cart" as "cart" | "square_store",
     leadTimeHours: 48,

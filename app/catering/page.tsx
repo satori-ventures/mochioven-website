@@ -10,7 +10,6 @@ import {
   MessageSquare,
   Package,
   Table2,
-  Store,
 } from "lucide-react";
 
 const packages = [
@@ -25,13 +24,6 @@ const packages = [
     title: "Dessert table",
     description: "A full assortment of mochi treats, arranged for self-serve.",
     price: "From $4.75 per person",
-  },
-  {
-    icon: Store,
-    title: "Hosted mochi bar",
-    description:
-      "A staffed tasting station for receptions and conferences.",
-    price: "From $1,500",
   },
 ];
 
@@ -323,11 +315,11 @@ export default function CateringPage() {
               Catering packages
             </p>
             <h2 className="text-balance text-3xl font-semibold text-ink sm:text-4xl">
-              Three ways to serve mochi at your event
+              Ways to make your event sweeter
             </h2>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-3">
+          <div className="mx-auto grid max-w-4xl gap-6 md:grid-cols-2">
             {packages.map((pkg) => (
               <div
                 key={pkg.title}
