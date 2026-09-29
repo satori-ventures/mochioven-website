@@ -28,13 +28,67 @@ function deliveryAddressText(f: Extract<ValidOrder["fulfillment"], { type: "deli
   return [f.address, f.address2, `${f.city} ${f.zip}`].filter(Boolean).join(", ");
 }
 
+/** "Wed, Sep 30" for a "YYYY-MM-DD" date. */
+function formatShortDate(date: string): string {
+  const [y, m, d] = date.split("-").map(Number);
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: "UTC",
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+  }).format(new Date(Date.UTC(y, m - 1, d)));
+}
+
+/** "1pm–3pm" → "1–3 pm", "11am–1pm" → "11 am–1 pm". Other text is returned as is. */
+function formatWindow(window: string): string {
+  const m = /^\s*(\d{1,2}(?::\d{2})?)\s*(am|pm)\s*[–-]\s*(\d{1,2}(?::\d{2})?)\s*(am|pm)\s*$/i.exec(window);
+  if (!m) return window;
+  const [, from, fromPart, to, toPart] = m;
+  return fromPart.toLowerCase() === toPart.toLowerCase()
+    ? `${from}–${to} ${toPart.toLowerCase()}`
+    : `${from} ${fromPart.toLowerCase()}–${to} ${toPart.toLowerCase()}`;
+}
+
+/**
+ * Note-only delivery mode: the order has no fulfillment, so Square lists it as
+ * "Other". The note starts with "DELIVERY" so staff see at once that it is a
+ * delivery: "DELIVERY | Wed, Sep 30, 1–3 pm | 123 Main St, Las Vegas 89138 |
+ * Jane Customer, +17025550100 | Notes: …". When it is too long, the customer's
+ * notes are shortened first; the address only as a last resort.
+ */
+function buildNoteOnlyDeliveryNote(
+  order: ValidOrder,
+  f: Extract<ValidOrder["fulfillment"], { type: "delivery" }>
+): string {
+  const timing =
+    order.timing.type === "asap"
+      ? "ASAP"
+      : `${formatShortDate(order.timing.date)}, ${formatWindow(order.timing.window)}`;
+  const contact = `${order.customer.name}, ${order.customer.phoneE164}`;
+  let address = deliveryAddressText(f);
+  const details = () => ["DELIVERY", timing, address, contact].join(" | ");
+
+  const overflow = details().length - MAX_NOTE_LENGTH;
+  if (overflow > 0) {
+    address = `${address.slice(0, Math.max(0, address.length - overflow - 1))}…`;
+  }
+  if (!order.notes) return details();
+  const prefix = `${details()} | Notes: `;
+  const room = MAX_NOTE_LENGTH - prefix.length;
+  if (room <= 1) return details();
+  const notes = order.notes.length > room ? `${order.notes.slice(0, room - 1)}…` : order.notes;
+  return prefix + notes;
+}
+
 /**
  * The note the owner reads in Square: timing, pickup or delivery, the address,
- * and the customer's notes. In note-only delivery mode it starts with the
- * customer's name and phone ("Name, +1… | ASAP | Delivery to …"), because there
- * is no fulfillment recipient and Square shows the card holder's name instead.
+ * and the customer's notes. Note-only delivery orders use
+ * buildNoteOnlyDeliveryNote (starts with "DELIVERY").
  */
 export function buildOrderNote(order: ValidOrder, includeContact: boolean): string {
+  if (includeContact && order.fulfillment.type === "delivery") {
+    return buildNoteOnlyDeliveryNote(order, order.fulfillment);
+  }
   const timing =
     order.timing.type === "asap"
       ? "ASAP"
@@ -43,11 +97,7 @@ export function buildOrderNote(order: ValidOrder, includeContact: boolean): stri
     order.fulfillment.type === "pickup"
       ? "Curbside pickup"
       : `Delivery to ${deliveryAddressText(order.fulfillment)}`;
-  const parts = [timing, fulfillment];
-  if (includeContact) {
-    parts.unshift(`${order.customer.name}, ${order.customer.phoneE164}`);
-  }
-  const base = parts.join(" | ");
+  const base = [timing, fulfillment].join(" | ");
   if (!order.notes) return base.slice(0, MAX_NOTE_LENGTH);
   const prefix = `${base} | Customer notes: `;
   const room = MAX_NOTE_LENGTH - prefix.length;

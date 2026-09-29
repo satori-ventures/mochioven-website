@@ -24,7 +24,7 @@ const orderSteps = [
   {
     icon: ShieldCheck,
     title: "Pay, then we confirm",
-    text: "Pay securely through Square. You will receive a confirmation text message and/or email, usually within 1 to 4 hours, with an estimate of when your order will be ready. If the timing does not work, we will find another time or give you a full refund.",
+    text: "Pay securely through Square. You will receive a confirmation text message and/or email, usually within 4 hours, with an estimate of when your order will be ready. If the timing does not work, we will find another time or give you a full refund.",
   },
 ];
 
