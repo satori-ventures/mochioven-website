@@ -315,7 +315,7 @@ export default function CateringPage() {
               Catering packages
             </p>
             <h2 className="text-balance text-3xl font-semibold text-ink sm:text-4xl">
-              Two ways to serve mochi at your event
+              Ways to make your event sweeter
             </h2>
           </div>
 
