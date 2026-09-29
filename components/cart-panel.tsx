@@ -8,6 +8,8 @@ import { siteConfig } from "@/lib/site-config";
 import {
   ADDRESS_ZIP_MISMATCH_MESSAGE,
   addressZipMismatch,
+  deliveryMinimumMessage,
+  deliveryShortfallCents,
   getDeliveryFee,
   formatFee,
   isValidZip,
@@ -154,6 +156,13 @@ export function CartPanel() {
     subtotalCents !== null && feeAmount !== null
       ? subtotalCents + feeAmount * 100
       : null;
+  // Delivery only: the items subtotal must reach the minimum. Recomputed on
+  // every render, so adding items or choosing pickup clears it at once.
+  const deliveryShortfall =
+    checkout.fulfillment === "delivery" && subtotalCents !== null
+      ? deliveryShortfallCents("delivery", subtotalCents)
+      : 0;
+  const belowDeliveryMinimum = deliveryShortfall > 0;
 
   const deliveryFeeLabel =
     checkout.fulfillment === "pickup"
@@ -178,6 +187,7 @@ export function CartPanel() {
       setTriedSubmit(true);
       return;
     }
+    if (belowDeliveryMinimum) return;
     if (
       checkout.fulfillment === "delivery" &&
       (!zipValid || outsideDeliveryArea || zipMismatch)
@@ -206,7 +216,7 @@ export function CartPanel() {
   }
 
   async function handleConfirm() {
-    if (submitting) return;
+    if (submitting || belowDeliveryMinimum) return;
     setSubmitting(true);
     setCheckoutError(null);
     try {
@@ -241,6 +251,18 @@ export function CartPanel() {
       : checkout.timing === "scheduled"
         ? `${checkout.date} · ${checkout.timeWindow}`
         : "";
+
+  function renderDeliveryMinimumNotice() {
+    if (!belowDeliveryMinimum) return null;
+    return (
+      <p
+        id="delivery-minimum-notice"
+        className="rounded-xl bg-coral-50 p-3 text-pretty text-sm font-medium text-coral-700"
+      >
+        {deliveryMinimumMessage(deliveryShortfall)}
+      </p>
+    );
+  }
 
   function renderOrderSummary() {
     return (
@@ -394,10 +416,12 @@ export function CartPanel() {
                   </p>
                 </div>
               )}
+              <div aria-live="polite">{renderDeliveryMinimumNotice()}</div>
               <button
                 type="button"
                 onClick={handleConfirm}
-                disabled={submitting}
+                disabled={submitting || belowDeliveryMinimum}
+                aria-describedby={belowDeliveryMinimum ? "delivery-minimum-notice" : undefined}
                 className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-full bg-coral-600 px-6 py-3 text-base font-semibold text-white shadow-md transition-all duration-200 hover:bg-coral-700 disabled:opacity-60"
               >
                 <Lock className="h-4 w-4" />
@@ -858,6 +882,9 @@ export function CartPanel() {
         {/* Sticky bar with total and pay button */}
         {!showSummary && lines.length > 0 && (
           <div className="border-t border-coral-100 bg-white px-5 py-3">
+            <div aria-live="polite" className={belowDeliveryMinimum ? "mb-3" : undefined}>
+              {renderDeliveryMinimumNotice()}
+            </div>
             <div className="flex items-center justify-between gap-3">
               <div className="shrink-0">
                 <p className="text-xs text-ink/50">Estimated total</p>
@@ -870,7 +897,9 @@ export function CartPanel() {
               <button
                 type="submit"
                 form="cart-checkout-form"
-                className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full bg-coral-600 px-5 py-3 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:bg-coral-700 hover:shadow-lg"
+                disabled={belowDeliveryMinimum}
+                aria-describedby={belowDeliveryMinimum ? "delivery-minimum-notice" : undefined}
+                className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full bg-coral-600 px-5 py-3 text-sm font-semibold text-white shadow-md transition-all duration-200 hover:bg-coral-700 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-coral-600 disabled:hover:shadow-md"
               >
                 <Lock className="h-4 w-4 shrink-0" />
                 <span>Continue to secure payment</span>

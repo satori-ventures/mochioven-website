@@ -106,6 +106,20 @@ export function buildOrderNote(order: ValidOrder, includeContact: boolean): stri
   return prefix + notes;
 }
 
+/**
+ * The items subtotal in cents from Square catalog prices (before the delivery
+ * fee and tax), or null when an item has no catalog price.
+ */
+export function orderSubtotalCents(order: ValidOrder, catalog: CatalogMatch): number | null {
+  let total = 0;
+  for (const { variant, quantity } of order.lines) {
+    const match = catalog.variations[priceKey(variant.item.id, variant.flavor, variant.size)];
+    if (!match) return null;
+    total += match.priceCents * quantity;
+  }
+  return total;
+}
+
 export function buildPaymentLinkRequest(params: {
   order: ValidOrder;
   catalog: CatalogMatch;

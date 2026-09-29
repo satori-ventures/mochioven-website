@@ -1,10 +1,15 @@
-import { buildPaymentLinkRequest, CatalogMismatchError } from "@/lib/checkout/build-order";
+import {
+  buildPaymentLinkRequest,
+  CatalogMismatchError,
+  orderSubtotalCents,
+} from "@/lib/checkout/build-order";
 import { siteOrigin } from "@/lib/checkout/site-url";
 import {
   MAX_BODY_BYTES,
   OrderValidationError,
   validateOrderRequest,
 } from "@/lib/checkout/validate";
+import { deliveryMinimumMessage, deliveryShortfallCents } from "@/lib/delivery-fee";
 import { getCatalogMatch } from "@/lib/square/catalog";
 import { getSquareConfig } from "@/lib/square/client";
 import { logServerError } from "@/lib/square/log";
@@ -53,6 +58,18 @@ export async function POST(request: Request) {
   let catalog;
   try {
     catalog = await getCatalogMatch();
+    // The delivery minimum uses Square's catalog prices, never browser totals.
+    // A missing price is left to buildPaymentLinkRequest (catalog mismatch).
+    const subtotalCents = orderSubtotalCents(order, catalog);
+    const shortfallCents =
+      subtotalCents === null ? 0 : deliveryShortfallCents(order.fulfillment.type, subtotalCents);
+    if (shortfallCents > 0) {
+      logServerError("delivery_below_minimum");
+      return reply(
+        { error: "delivery_below_minimum", message: deliveryMinimumMessage(shortfallCents) },
+        400
+      );
+    }
     const paymentLinkRequest = buildPaymentLinkRequest({
       order,
       catalog,
