@@ -23,7 +23,7 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://themochioven.com"),
+  metadataBase: new URL("https://mochioven.com"),
   title: {
     default: `${siteConfig.name} | Mochi Cakes & Treats in ${siteConfig.location}`,
     template: `%s | ${siteConfig.name}`,
