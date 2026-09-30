@@ -7,6 +7,7 @@ import { Footer } from "@/components/footer";
 import { CartProvider } from "@/lib/cart-context";
 import { PricesProvider } from "@/lib/prices-context";
 import { CartPanel } from "@/components/cart-panel";
+import { GoogleAnalytics } from "@/components/google-analytics";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -71,6 +72,7 @@ export default function RootLayout({
             <CartPanel />
           </CartProvider>
         </PricesProvider>
+        <GoogleAnalytics />
       </body>
     </html>
   );
