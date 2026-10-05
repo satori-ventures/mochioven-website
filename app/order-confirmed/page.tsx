@@ -1,4 +1,5 @@
 import { ClearCart } from "@/components/clear-cart";
+import { siteConfig } from "@/lib/site-config";
 
 export const metadata = {
   title: "Order Confirmed",
@@ -16,6 +17,10 @@ export default function OrderConfirmedPage() {
           You will receive a confirmation text message and/or email, usually
           within 4 hours, with an estimate of when your order will be
           ready.
+        </p>
+        <p className="mt-8 rounded-2xl bg-secondary p-5 text-pretty text-[15px] leading-relaxed text-ink/80 ring-1 ring-coral-100/80">
+          <span className="font-semibold text-coral-700">{siteConfig.proTip.label}</span>{" "}
+          {siteConfig.proTip.confirmation}
         </p>
       </div>
     </div>
