@@ -120,6 +120,10 @@ function ProductCard({ item }: { item: MenuItem }) {
         <p className="mt-2 text-[15px] leading-relaxed text-ink/70">
           {item.description}
         </p>
+        {/* Same grid row as the description, so the rows below stay level. */}
+        {(siteConfig.proTip.menuItemIds as readonly string[]).includes(item.id) && (
+          <p className="mt-2 text-pretty text-xs text-ink/70">{siteConfig.proTip.menuCard}</p>
+        )}
       </div>
 
       <div className="px-6">
