@@ -122,7 +122,7 @@ function ProductCard({ item }: { item: MenuItem }) {
         </p>
         {/* Same grid row as the description, so the rows below stay level. */}
         {(siteConfig.proTip.menuItemIds as readonly string[]).includes(item.id) && (
-          <p className="mt-2 text-pretty text-xs text-ink/70">{siteConfig.proTip.menuCard}</p>
+          <p className="mt-2 text-pretty text-xs font-semibold text-ink/70">{siteConfig.proTip.menuCard}</p>
         )}
       </div>
 
