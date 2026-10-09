@@ -22,6 +22,9 @@ import { cn } from "@/lib/utils";
 
 type TimingChoice = "asap" | "scheduled" | "";
 
+/** Customer-facing label for the "asap" timing choice (button and review). */
+const ASAP_LABEL = "ASAP (within 24–48 hours)";
+
 type CheckoutInfo = {
   name: string;
   phone: string;
@@ -247,7 +250,7 @@ export function CartPanel() {
 
   const timingLabel =
     checkout.timing === "asap"
-      ? "As soon as possible"
+      ? ASAP_LABEL
       : checkout.timing === "scheduled"
         ? `${checkout.date} · ${checkout.timeWindow}`
         : "";
@@ -749,7 +752,7 @@ export function CartPanel() {
                           : "border-coral-200 text-ink/70 hover:bg-coral-100"
                       )}
                     >
-                      As soon as possible
+                      {ASAP_LABEL}
                     </button>
                     <button
                       type="button"
@@ -777,8 +780,8 @@ export function CartPanel() {
                   <div className="rounded-lg bg-coral-50 px-3 py-2">
                     <p className="text-pretty text-xs text-ink/60">
                       We will reach out to confirm your order and let you know
-                      when it will be ready. Same-day orders depend on
-                      availability.
+                      when it will be ready. Need it sooner? Add a note, and we
+                      will do our best.
                     </p>
                   </div>
                 )}
