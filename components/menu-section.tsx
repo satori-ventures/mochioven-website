@@ -293,8 +293,8 @@ function ProductCard({ item }: { item: MenuItem }) {
         </div>
       </div>
 
-      {/* Add to order */}
-      <div className="flex flex-col px-6 pb-6">
+      {/* Add to order, at least 16px below the row above it */}
+      <div className="flex flex-col px-6 pb-6 pt-4">
         <button
           type="button"
           onClick={handleAdd}
