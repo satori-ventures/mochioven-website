@@ -780,8 +780,8 @@ export function CartPanel() {
                   <div className="rounded-lg bg-coral-50 px-3 py-2">
                     <p className="text-pretty text-xs text-ink/60">
                       We will reach out to confirm your order and let you know
-                      when it will be ready. Same-day orders depend on
-                      availability.
+                      when it will be ready. Need it sooner? Add a note, and we
+                      will do our best.
                     </p>
                   </div>
                 )}
