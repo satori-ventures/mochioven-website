@@ -22,6 +22,9 @@ import { cn } from "@/lib/utils";
 
 type TimingChoice = "asap" | "scheduled" | "";
 
+/** Customer-facing label for the "asap" timing choice (button and review). */
+const ASAP_LABEL = "ASAP (within 24–48 hours)";
+
 type CheckoutInfo = {
   name: string;
   phone: string;
@@ -247,7 +250,7 @@ export function CartPanel() {
 
   const timingLabel =
     checkout.timing === "asap"
-      ? "As soon as possible"
+      ? ASAP_LABEL
       : checkout.timing === "scheduled"
         ? `${checkout.date} · ${checkout.timeWindow}`
         : "";
@@ -749,7 +752,7 @@ export function CartPanel() {
                           : "border-coral-200 text-ink/70 hover:bg-coral-100"
                       )}
                     >
-                      As soon as possible
+                      {ASAP_LABEL}
                     </button>
                     <button
                       type="button"
