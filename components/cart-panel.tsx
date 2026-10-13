@@ -588,6 +588,18 @@ export function CartPanel() {
                       unsubscribe at any time.
                     </span>
                   </label>
+                  {/* Outside the label, so it never toggles the checkbox.
+                      Indented to line up with the checkbox text. */}
+                  <p className="pl-[30px] text-xs">
+                    <Link
+                      href="/privacy"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-block py-1 font-medium text-coral-700 underline underline-offset-2 transition-colors hover:text-coral-600"
+                    >
+                      Privacy policy
+                    </Link>
+                  </p>
                 </div>
 
                 <div className="space-y-1.5">
