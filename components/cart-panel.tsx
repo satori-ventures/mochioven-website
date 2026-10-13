@@ -29,6 +29,7 @@ type CheckoutInfo = {
   name: string;
   phone: string;
   email: string;
+  marketingOptIn: boolean;
   fulfillment: "pickup" | "delivery" | "";
   address: string;
   address2: string;
@@ -44,6 +45,7 @@ const initialCheckout: CheckoutInfo = {
   name: "",
   phone: "",
   email: "",
+  marketingOptIn: false,
   fulfillment: "",
   address: "",
   address2: "",
@@ -100,6 +102,7 @@ function buildCheckoutRequest(
         ? { type: "scheduled", date: checkout.date, window: checkout.timeWindow }
         : { type: "asap" },
     notes: checkout.notes,
+    marketingOptIn: checkout.marketingOptIn,
   };
 }
 
@@ -566,6 +569,25 @@ export function CartPanel() {
                     className="w-full rounded-lg border border-coral-200 bg-white px-3 py-2.5 text-sm text-ink outline-none transition-colors focus:border-coral-500 focus:ring-2 focus:ring-coral-200"
                   />
                   <p className="text-xs text-ink/50">For your receipt.</p>
+                  <label
+                    htmlFor="ck-marketing"
+                    className="flex min-h-[44px] cursor-pointer items-start gap-2.5 pt-2 text-sm text-ink/70"
+                  >
+                    <input
+                      id="ck-marketing"
+                      name="marketingOptIn"
+                      type="checkbox"
+                      checked={checkout.marketingOptIn}
+                      onChange={(e) =>
+                        setCheckout({ ...checkout, marketingOptIn: e.target.checked })
+                      }
+                      className="h-5 w-5 shrink-0 cursor-pointer rounded border-coral-200 accent-coral-600"
+                    />
+                    <span className="text-pretty">
+                      Email me about new flavors and special offers. You can
+                      unsubscribe at any time.
+                    </span>
+                  </label>
                 </div>
 
                 <div className="space-y-1.5">

@@ -15,6 +15,7 @@ The Mochi Oven marketing and ordering website.
   - `app/api/checkout/route.ts`: validates the order and creates a Square hosted checkout (payment link); `lib/checkout/*` holds validation and order building
   - `app/api/menu-prices/route.ts` and `lib/square/*`: menu prices from the Square catalog (cached about 5 minutes); server only
   - Square settings are server environment variables in Netlify: `SQUARE_ACCESS_TOKEN`, `SQUARE_LOCATION_ID`, `SQUARE_ENVIRONMENT` (`sandbox` or `production`), and optional `SQUARE_DELIVERY_MODE` (`delivery` or `note_only`)
+  - `lib/mailerlite.ts`: email marketing opt-in. When the customer checks the box in the checkout form, the server adds the email and first name to a MailerLite group after checkout starts; server only. Settings are server environment variables in Netlify: `MAILERLITE_API_KEY` and `MAILERLITE_GROUP_ID`. When either is missing, the sign-up is skipped.
 - `ORDER_MODE` is `"cart"`. Do not change it.
 - Agent tools (such as Grok Bot) use the `mochioven-bot` account only. The owner may also work directly, or through Claude Code on the owner's computer, under the same rules.
 

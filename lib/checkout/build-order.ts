@@ -7,6 +7,7 @@ import type { DeliveryMode } from "@/lib/square/client";
 import type { ValidOrder } from "@/lib/checkout/validate";
 
 const MAX_NOTE_LENGTH = 500;
+const EMAIL_OPT_IN_NOTE = "Email opt-in: yes";
 const ASAP_PREP_TIME = "PT4H";
 
 export class CatalogMismatchError extends Error {
@@ -53,7 +54,8 @@ function formatWindow(window: string): string {
  * Note-only delivery mode: the order has no fulfillment, so Square lists it as
  * "Other". The note starts with "DELIVERY" so staff see at once that it is a
  * delivery: "DELIVERY | Wed, Sep 30, 1–3 pm | 123 Main St, Las Vegas 89138 |
- * Jane Customer, +17025550100 | Notes: …". When it is too long, the customer's
+ * Jane Customer, +17025550100 | Notes: …", with "Email opt-in: yes" before
+ * the notes when the customer opted in. When it is too long, the customer's
  * notes are shortened first; the address only as a last resort.
  */
 function buildNoteOnlyDeliveryNote(
@@ -66,7 +68,8 @@ function buildNoteOnlyDeliveryNote(
       : `${formatShortDate(order.timing.date)}, ${formatWindow(order.timing.window)}`;
   const contact = `${order.customer.name}, ${order.customer.phoneE164}`;
   let address = deliveryAddressText(f);
-  const details = () => ["DELIVERY", timing, address, contact].join(" | ");
+  const details = () =>
+    ["DELIVERY", timing, address, contact, ...(order.marketingOptIn ? [EMAIL_OPT_IN_NOTE] : [])].join(" | ");
 
   const overflow = details().length - MAX_NOTE_LENGTH;
   if (overflow > 0) {
@@ -82,7 +85,7 @@ function buildNoteOnlyDeliveryNote(
 
 /**
  * The note the owner reads in Square: timing, pickup or delivery, the address,
- * and the customer's notes. Note-only delivery orders use
+ * "Email opt-in: yes" when the customer opted in, and the customer's notes. Note-only delivery orders use
  * buildNoteOnlyDeliveryNote (starts with "DELIVERY").
  */
 export function buildOrderNote(order: ValidOrder, includeContact: boolean): string {
@@ -97,7 +100,7 @@ export function buildOrderNote(order: ValidOrder, includeContact: boolean): stri
     order.fulfillment.type === "pickup"
       ? "Curbside pickup"
       : `Delivery to ${deliveryAddressText(order.fulfillment)}`;
-  const base = [timing, fulfillment].join(" | ");
+  const base = [timing, fulfillment, ...(order.marketingOptIn ? [EMAIL_OPT_IN_NOTE] : [])].join(" | ");
   if (!order.notes) return base.slice(0, MAX_NOTE_LENGTH);
   const prefix = `${base} | Customer notes: `;
   const room = MAX_NOTE_LENGTH - prefix.length;

@@ -1,3 +1,4 @@
+import { after } from "next/server";
 import {
   buildPaymentLinkRequest,
   CatalogMismatchError,
@@ -10,6 +11,7 @@ import {
   validateOrderRequest,
 } from "@/lib/checkout/validate";
 import { deliveryMinimumMessage, deliveryShortfallCents } from "@/lib/delivery-fee";
+import { addMarketingSubscriber, firstNameOf } from "@/lib/mailerlite";
 import { getCatalogMatch } from "@/lib/square/catalog";
 import { getSquareConfig } from "@/lib/square/client";
 import { logServerError } from "@/lib/square/log";
@@ -82,6 +84,12 @@ export async function POST(request: Request) {
     if (!url || !url.startsWith("https://")) {
       logServerError("payment_link_missing_url");
       return reply({ error: "checkout_failed" }, 502);
+    }
+    if (order.marketingOptIn) {
+      // Runs after the response is sent, so MailerLite can never block or
+      // delay checkout. Only the email and first name are sent, not the phone.
+      const { email, name } = order.customer;
+      after(() => addMarketingSubscriber(email, firstNameOf(name)));
     }
     return reply({ url }, 200);
   } catch (error) {
