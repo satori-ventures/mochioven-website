@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { siteConfig } from "@/lib/site-config";
 import { Instagram, Mail, MessageSquare, MapPin } from "lucide-react";
 
@@ -82,6 +83,12 @@ export function Footer() {
             &copy; {new Date().getFullYear()} The Mochi Oven. All rights
             reserved.
           </p>
+          <Link
+            href="/privacy"
+            className="mt-1 inline-flex min-h-[44px] items-center px-3 text-xs font-medium text-ink/70 transition-colors hover:text-coral-700"
+          >
+            Privacy
+          </Link>
         </div>
       </div>
     </footer>
