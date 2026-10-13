@@ -58,6 +58,7 @@ const requestSchema = z.object({
     }),
   ]),
   notes: z.string().trim().max(300).default(""),
+  marketingOptIn: z.boolean().default(false),
 });
 
 export type ValidOrderLine = { variant: MenuVariant; quantity: number };
@@ -81,6 +82,8 @@ export type ValidOrder = {
     | { type: "asap" }
     | { type: "scheduled"; date: string; window: string; startHour: number; startMinute: number };
   notes: string;
+  /** True only when the customer checked the email marketing box. */
+  marketingOptIn: boolean;
 };
 
 /**
@@ -190,5 +193,6 @@ export function validateOrderRequest(body: unknown): ValidOrder {
     fulfillment,
     timing,
     notes: req.notes,
+    marketingOptIn: req.marketingOptIn,
   };
 }
