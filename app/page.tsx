@@ -53,7 +53,7 @@ export default function Home() {
         <div className="relative z-10 mx-auto w-full max-w-6xl px-4 pb-16 sm:px-6 sm:pb-20 lg:pb-28">
           <div className="max-w-2xl animate-fade-up">
             <h1 className="text-balance text-4xl font-semibold leading-[1.1] text-white sm:text-5xl lg:text-6xl">
-              Crispy outside, chewy inside.
+              Buttery. Chewy. Delightful.
             </h1>
             <p className="mt-5 text-pretty text-lg text-white/90 sm:text-xl">
               Mochi cakes, madeleines, and bite-size treats, handmade in
