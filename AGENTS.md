@@ -33,7 +33,7 @@ The Mochi Oven marketing and ordering website.
 
 ### Content rules for any text you write
 
-- Lead with texture (crispy outside, chewy inside), then unique flavors, then quality ingredients. Gluten-free is mentioned last, plainly, and never as inclusivity.
+- Lead with texture (Buttery. Chewy. Delightful.), then unique flavors, then quality ingredients. Gluten-free is mentioned last, plainly, and never as inclusivity.
 - Never write "baked to order," "made to order," "fresh-baked," or "baked fresh." Use "handmade in small batches" instead.
 - Never include the owner's personal name.
 - Never invent prices, claims, or facts.
