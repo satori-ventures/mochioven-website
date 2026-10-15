@@ -276,7 +276,7 @@ export default function CateringPage() {
       <section className="relative flex min-h-[70vh] items-end overflow-hidden">
         <div className="absolute inset-0">
           <Image
-            src="/images/catering/catering.JPG"
+            src="/images/catering/catering.webp"
             alt="Assorted mochi desserts arranged on a table for a catered event"
             fill
             priority

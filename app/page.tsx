@@ -39,7 +39,7 @@ export default function Home() {
       <section className="relative flex min-h-[88vh] items-end overflow-hidden">
         <div className="absolute inset-0">
           <Image
-            src="/images/Hero.jpeg"
+            src="/images/Hero.webp"
             alt="Fresh handmade mochi treats from The Mochi Oven"
             fill
             priority
@@ -161,7 +161,7 @@ export default function Home() {
           <div className="grid items-center gap-12 lg:grid-cols-2">
             <div className="relative aspect-[5/4] overflow-hidden rounded-3xl">
               <Image
-                src="/images/middle_home_page.jpeg"
+                src="/images/middle_home_page.webp"
                 alt="Handmade mochi baked goods from The Mochi Oven"
                 fill
                 className="object-cover"
