@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { HashLink } from "@/components/hash-link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { siteConfig } from "@/lib/site-config";
@@ -43,12 +44,12 @@ export function Header() {
 
         {/* Right: desktop nav + CTA */}
         <div className="hidden items-center gap-7 md:flex">
-          <Link
+          <HashLink
             href="/#products"
             className="text-sm font-medium text-ink/70 transition-colors duration-200 hover:text-ink"
           >
             Menu
-          </Link>
+          </HashLink>
           <Link
             href="/catering"
             className={cn(
@@ -60,13 +61,13 @@ export function Header() {
           >
             Catering
           </Link>
-          <Link
+          <HashLink
             href="/#about"
             className="text-sm font-medium text-ink/70 transition-colors duration-200 hover:text-ink"
           >
             About
-          </Link>
-          <Link
+          </HashLink>
+          <HashLink
             href={orderButtonHref}
             {...(orderButtonExternal
               ? { target: "_blank", rel: "noopener noreferrer" }
@@ -75,7 +76,7 @@ export function Header() {
           >
             <ShoppingBag className="h-4 w-4" />
             Order online
-          </Link>
+          </HashLink>
           {isCartMode && (
             <button
               type="button"
@@ -106,7 +107,7 @@ export function Header() {
           >
             Catering
           </Link>
-          <Link
+          <HashLink
             href={orderButtonHref}
             {...(orderButtonExternal
               ? { target: "_blank", rel: "noopener noreferrer" }
@@ -115,7 +116,7 @@ export function Header() {
           >
             <ShoppingBag className="h-4 w-4" />
             Order
-          </Link>
+          </HashLink>
           {isCartMode && (
             <button
               type="button"

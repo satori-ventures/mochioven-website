@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { HashLink } from "@/components/hash-link";
 import { useCart, type CartLine } from "@/lib/cart-context";
 import { formatMinimum } from "@/lib/menu-data";
 import { siteConfig } from "@/lib/site-config";
@@ -748,13 +749,13 @@ export function CartPanel() {
                       <p className="text-xs text-red-600">
                         Sorry, this address is outside our delivery area.
                         Please choose curbside pickup, or{" "}
-                        <Link
+                        <HashLink
                           href="/catering#inquiry"
                           onClick={closeCart}
                           className="font-medium underline underline-offset-2"
                         >
                           contact us
-                        </Link>
+                        </HashLink>
                         .
                       </p>
                     )}

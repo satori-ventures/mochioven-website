@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { HashLink } from "@/components/hash-link";
 import Image from "next/image";
 import { siteConfig } from "@/lib/site-config";
 import { MenuSection } from "@/components/menu-section";
@@ -60,7 +61,7 @@ export default function Home() {
               Summerlin, Las Vegas.
             </p>
             <div className="mt-8 flex flex-wrap gap-3 sm:gap-4">
-              <Link
+              <HashLink
                 href={startOrderHref}
                 {...(startOrderExternal
                   ? { target: "_blank", rel: "noopener noreferrer" }
@@ -69,7 +70,7 @@ export default function Home() {
               >
                 <ShoppingBag className="h-5 w-5" />
                 Order online
-              </Link>
+              </HashLink>
             </div>
           </div>
         </div>
@@ -109,17 +110,17 @@ export default function Home() {
 
           <p className="mt-10 text-center text-pretty text-[15px] text-ink/70">
             For large orders, catering, or other special requests, please{" "}
-            <Link
+            <HashLink
               href="/catering#inquiry"
               className="font-semibold text-coral-700 transition-colors hover:text-coral-600"
             >
               contact us
-            </Link>
+            </HashLink>
             .
           </p>
 
           <div className="mt-8 text-center">
-            <Link
+            <HashLink
               href={startOrderHref}
               {...(startOrderExternal
                 ? { target: "_blank", rel: "noopener noreferrer" }
@@ -128,7 +129,7 @@ export default function Home() {
             >
               <ShoppingBag className="h-5 w-5" />
               Start your order
-            </Link>
+            </HashLink>
           </div>
         </div>
       </section>
