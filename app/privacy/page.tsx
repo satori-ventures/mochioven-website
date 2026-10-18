@@ -5,7 +5,7 @@ export const metadata = {
   description: `How ${siteConfig.name} collects and uses your information.`,
 };
 
-const LAST_UPDATED = "October 13, 2026";
+const LAST_UPDATED = "October 18, 2026";
 
 const email = siteConfig.contact.email;
 
@@ -81,7 +81,7 @@ const sections: { title: string; body: React.ReactNode }[] = [
   },
   {
     title: "Hosting",
-    body: <>This site is hosted by Netlify.</>,
+    body: <>This site is hosted by Vercel.</>,
   },
   {
     title: "We do not sell your data",

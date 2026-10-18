@@ -9,8 +9,8 @@ const GA_ID_PATTERN = /^G-[A-Z0-9]+$/;
  * measurement ID. When it is unset, empty, or invalid, this renders nothing
  * and the site makes no requests to Google.
  *
- * NEXT_PUBLIC_ variables are inlined at build time, so a change in Netlify
- * needs a new deploy to take effect.
+ * NEXT_PUBLIC_ variables are inlined at build time, so a change in the
+ * hosting settings needs a new deploy to take effect.
  */
 export function GoogleAnalytics() {
   const gaId = (process.env.NEXT_PUBLIC_GA_ID ?? "").trim();

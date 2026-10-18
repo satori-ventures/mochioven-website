@@ -36,8 +36,8 @@ export const siteConfig = {
   proTip: {
     label: "Pro tip:",
     confirmation:
-      "For an enhanced experience, warm your Mochi Cakes and Mochi Maddies in the oven at 300°F for about 5 minutes (not for Mini Mochi Cupcakes since the buttercream will melt).",
-    menuCard: "Pro tip: warm at 300°F for 5 minutes before eating.",
+      "For an enhanced experience, warm your Mochi Cakes and Mochi Maddies in the oven at 325°F for about 5 minutes (not for Mini Mochi Cupcakes since the buttercream will melt).",
+    menuCard: "Pro tip: warm at 325°F for 5 minutes before eating.",
     menuItemIds: ["mochi-cake", "mochi-maddies", "sampler"],
   },
   nav: [

@@ -4,8 +4,8 @@
 
 The Mochi Oven marketing and ordering website.
 
-- Stack: Next.js (currently 16.3.6), TypeScript, Tailwind CSS, hosted on Netlify
-- Netlify builds every branch and pull request. Each pull request gets its own preview link. Production publishing is locked, and the owner publishes manually.
+- Stack: Next.js (currently 16.3.6), TypeScript, Tailwind CSS, hosted on Vercel
+- Vercel builds every branch and pull request. Each pull request gets its own preview link. Merging to `main` deploys to production immediately; there is no manual publish step.
 - Key files:
   - `lib/site-config.ts`: business settings (ORDER_MODE, pickup windows, delivery fees, Summerlin ZIP codes, contact details, Formspree endpoint)
   - `lib/menu-data.ts`: menu items, flavors, sizes, minimum quantities
@@ -14,8 +14,8 @@ The Mochi Oven marketing and ordering website.
   - `components/cart-panel.tsx`: the cart, checkout form, and review screen; "Confirm order" posts to `/api/checkout`
   - `app/api/checkout/route.ts`: validates the order and creates a Square hosted checkout (payment link); `lib/checkout/*` holds validation and order building
   - `app/api/menu-prices/route.ts` and `lib/square/*`: menu prices from the Square catalog (cached about 5 minutes); server only
-  - Square settings are server environment variables in Netlify: `SQUARE_ACCESS_TOKEN`, `SQUARE_LOCATION_ID`, `SQUARE_ENVIRONMENT` (`sandbox` or `production`), and optional `SQUARE_DELIVERY_MODE` (`delivery` or `note_only`)
-  - `lib/mailerlite.ts`: email marketing opt-in. When the customer checks the box in the checkout form, the server adds the email and first name to a MailerLite group after checkout starts; server only. Settings are server environment variables in Netlify: `MAILERLITE_API_KEY` and `MAILERLITE_GROUP_ID`. When either is missing, the sign-up is skipped.
+  - Square settings are server environment variables in the Vercel project settings: `SQUARE_ACCESS_TOKEN`, `SQUARE_LOCATION_ID`, `SQUARE_ENVIRONMENT` (`sandbox` or `production`), and optional `SQUARE_DELIVERY_MODE` (`delivery` or `note_only`)
+  - `lib/mailerlite.ts`: email marketing opt-in. When the customer checks the box in the checkout form, the server adds the email and first name to a MailerLite group after checkout starts; server only. Settings are server environment variables in the Vercel project settings: `MAILERLITE_API_KEY` and `MAILERLITE_GROUP_ID`. When either is missing, the sign-up is skipped.
 - `ORDER_MODE` is `"cart"`. Do not change it.
 - Agent tools (such as Grok Bot) use the `mochioven-bot` account only. The owner may also work directly, or through Claude Code on the owner's computer, under the same rules.
 
@@ -24,8 +24,8 @@ The Mochi Oven marketing and ordering website.
 - Never push to `main`. Always create a new branch, and open a pull request into `main`.
 - Never merge a pull request. The owner reviews and merges.
 - Never change repo settings, collaborators, rules, or GitHub app permissions.
-- Never put secrets in the code. Secrets live only in Netlify environment variables. You do not have access to them, and you must not ask for them.
-- Do not sign in to Square, Netlify, GoDaddy, Google Workspace, Formspree, or any other business account.
+- Never put secrets in the code. Secrets and environment variables live only in the Vercel project settings. You do not have access to them, and you must not ask for them.
+- Do not sign in to Square, Vercel, GoDaddy, Google Workspace, Formspree, or any other business account.
 - One pull request per task. Keep each one small and focused.
 - Every pull request description must include: what changed, why, any risks, and a step-by-step manual test checklist for the preview link.
 - Ask before you guess. If a requirement is unclear, stop and ask in the pull request or in chat.
