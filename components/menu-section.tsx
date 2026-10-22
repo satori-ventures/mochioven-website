@@ -316,13 +316,22 @@ export function MenuSection() {
   return (
     <section id="products" className="scroll-mt-24 bg-white pt-20 sm:pt-28">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="mb-6 text-center">
+        <div className="mb-8 text-center sm:mb-10">
           <p className="mb-3 text-sm font-medium uppercase tracking-widest text-coral-600">
             From the oven
           </p>
           <h2 className="text-balance text-3xl font-semibold text-ink sm:text-4xl lg:text-5xl">
             Our menu
           </h2>
+        </div>
+
+        <div className="grid gap-x-6 sm:grid-cols-2">
+          {menuItems.map((item) => (
+            <ProductCard key={item.id} item={item} />
+          ))}
+        </div>
+
+        <div className="mb-8 text-center sm:mb-10">
           <p className="mx-auto mt-4 max-w-xl text-pretty text-[15px] text-ink/70">
             Handmade in small batches in Summerlin.
           </p>
@@ -348,12 +357,6 @@ export function MenuSection() {
           <p className="mx-auto mt-3 max-w-xl text-balance text-[15px] text-ink/70">
             Order ahead or ask about same-day. We confirm every order by text or email.
           </p>
-        </div>
-
-        <div className="grid gap-x-6 sm:grid-cols-2">
-          {menuItems.map((item) => (
-            <ProductCard key={item.id} item={item} />
-          ))}
         </div>
 
         {/* Custom Orders */}
